@@ -1,159 +1,177 @@
 import streamlit as st
+
+# -------------------------
+# PAGE CONFIG
+# -------------------------
 st.set_page_config(
     page_title="NextPlay AI",
     page_icon="🏆",
     layout="wide"
 )
+
 # -------------------------
-# STYLE
+# STYLING
 # -------------------------
 st.markdown("""
 <style>
+
 .stApp {
-    background: linear-gradient(
-        135deg,
-        #020617 0%,
-        #0f172a 35%,
-        #1e3a8a 100%
-    );
-    color: white;
+    background: linear-gradient(135deg,#020617,#0f172a,#1e3a8a);
 }
-.main-card {
+
+.main-title {
+    text-align:center;
+    color:white;
+    font-size:4rem;
+    font-weight:800;
+}
+
+.sub-title {
+    text-align:center;
+    color:#cbd5e1;
+    font-size:1.2rem;
+    margin-bottom:30px;
+}
+
+.result-card {
     background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-    border-radius: 20px;
-    padding: 25px;
-    border: 1px solid rgba(255,255,255,0.12);
+    padding:20px;
+    border-radius:20px;
+    border:1px solid rgba(255,255,255,0.15);
 }
-.title {
-    text-align: center;
-    font-size: 3.5rem;
-    font-weight: 800;
-    color: white;
-}
-.subtitle {
-    text-align: center;
-    color: #cbd5e1;
-    margin-bottom: 30px;
-}
+
 .ai-box {
-    background: rgba(59,130,246,0.15);
-    border-left: 4px solid #3b82f6;
-    padding: 15px;
-    border-radius: 12px;
-    margin-top: 15px;
+    background:#0f172a;
+    padding:20px;
+    border-radius:15px;
+    border-left:5px solid #3b82f6;
 }
-.metric-label {
-    color: #cbd5e1;
-}
+
 </style>
 """, unsafe_allow_html=True)
+
 # -------------------------
 # HEADER
 # -------------------------
 st.markdown(
-    "<div class='title'>🏆 NextPlay AI</div>",
+    "<div class='main-title'>🏆 NextPlay AI</div>",
     unsafe_allow_html=True
 )
+
 st.markdown(
-    "<div class='subtitle'>Sports Predictions Powered by AI</div>",
+    "<div class='sub-title'>Sports Predictions Powered by AI</div>",
     unsafe_allow_html=True
 )
-st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+
 # -------------------------
-# SPORT
+# TEAM DATABASE
 # -------------------------
-sport = st.selectbox(
-    "Choose Sport",
-    [
-        "🏀 NBA",
-        "🏈 NFL",
-        "⚽ Soccer",
-        "⚾ MLB"
-    ]
-)
+teams = {
+    "Lakers": 92,
+    "Celtics": 96,
+    "Warriors": 90,
+    "Nuggets": 94,
+    "Suns": 89,
+    "Knicks": 91,
+    "Bucks": 93,
+    "Heat": 88,
+    "Mavericks": 90,
+    "Timberwolves": 92
+}
+
 # -------------------------
-# TEAMS
+# TEAM SELECTION
 # -------------------------
 col1, col2 = st.columns(2)
+
 with col1:
-    team1 = st.text_input("Team 1")
+    team1 = st.selectbox(
+        "Team 1",
+        list(teams.keys())
+    )
+
 with col2:
-    team2 = st.text_input("Team 2")
+    team2 = st.selectbox(
+        "Team 2",
+        list(teams.keys()),
+        index=1
+    )
+
 # -------------------------
-# RATINGS
+# TEAM RATINGS
 # -------------------------
+team1_rating = teams[team1]
+team2_rating = teams[team2]
+
+st.write("### Team Strength")
+
 col3, col4 = st.columns(2)
+
 with col3:
-    team1_rating = st.slider(
-        "Team 1 Strength",
-        0,
-        100,
-        85
-    )
+    st.metric(team1, team1_rating)
+
 with col4:
-    team2_rating = st.slider(
-        "Team 2 Strength",
-        0,
-        100,
-        85
-    )
+    st.metric(team2, team2_rating)
+
 home_team = st.selectbox(
     "Home Team",
-    [
-        "Team 1",
-        "Team 2"
-    ]
+    [team1, team2]
 )
+
 # -------------------------
-# PREDICTION
+# PREDICT BUTTON
 # -------------------------
 if st.button("🚀 Run AI Prediction"):
-    score1 = team1_rating
-    score2 = team2_rating
-    if home_team == "Team 1":
-        score1 += 3
+
+    t1 = team1_rating
+    t2 = team2_rating
+
+    if home_team == team1:
+        t1 += 3
     else:
-        score2 += 3
-    diff = abs(score1 - score2)
-    if score1 > score2:
-        winner = team1 if team1 else "Team 1"
-    elif score2 > score1:
-        winner = team2 if team2 else "Team 2"
+        t2 += 3
+
+    difference = abs(t1 - t2)
+
+    if t1 > t2:
+        winner = team1
+        probability = min(95, 50 + difference)
     else:
-        winner = "Tie"
-    probability = min(
-        95,
-        50 + diff * 2
-    )
+        winner = team2
+        probability = min(95, 50 + difference)
+
+    confidence = probability / 100
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
     st.success(f"🏆 Predicted Winner: {winner}")
-    st.progress(probability / 100)
+
+    st.progress(confidence)
+
     st.metric(
         "Win Probability",
         f"{probability}%"
     )
-    if diff >= 15:
-        confidence = "Very High"
-    elif diff >= 8:
-        confidence = "High"
-    elif diff >= 4:
-        confidence = "Medium"
-    else:
-        confidence = "Low"
-    st.info(f"Confidence: {confidence}")
-    st.markdown(
-        f"""
-        <div class="ai-box">
-        <h4>🤖 NextPlay AI Analysis</h4>
-        <p>
-        {winner} is favored due to stronger team metrics
-        and home advantage adjustments.
-        Current confidence level: <b>{confidence}</b>.
-        </p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-st.markdown("</div>", unsafe_allow_html=True)
+
+    # AI ANALYSIS
+    st.markdown("### 🤖 NextPlay AI Analysis")
+
+    analysis = f"""
+    {winner} enters this matchup with a stronger overall rating.
+
+    Home court advantage was included in the prediction.
+
+    Rating Difference: {difference}
+
+    Projected Win Probability: {probability}%
+
+    Confidence increases as the rating gap widens.
+    """
+
+    st.info(analysis)
+
+# -------------------------
+# FOOTER
+# -------------------------
 st.markdown("---")
-st.caption("NextPlay AI • V2 Startup Edition")
+st.caption("NextPlay AI V3")
