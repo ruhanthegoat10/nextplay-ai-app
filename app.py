@@ -31,25 +31,7 @@ st.markdown("""
 # -------------------------
 # 2. ENHANCED TEAM DATABASE
 # -------------------------
-# Added Records, Streaks, and Head-to-Head matchup data
 TEAM_DATA = {
     "Celtics": {"off": 120.8, "def": 110.6, "pace": 98.4, "wins": 54, "losses": 18, "streak": "W4", "h2h_vs": {"Lakers": [1, 1, 0], "Warriors": [1, 0, 1]}},
     "Nuggets": {"off": 118.5, "def": 112.3, "pace": 97.1, "wins": 51, "losses": 21, "streak": "W1", "h2h_vs": {"Lakers": [1, 1, 1], "Warriors": [1, 1, 0]}},
-    "Bucks": {"off": 117.9, "def": 115.1, "pace": 100.8, "wins": 48, "losses": 24, "streak": "L1", "h2h_vs": {}},
-    "Mavericks": {"off": 117.2, "def": 114.8, "pace": 100.1, "wins": 46, "losses": 26, "streak": "W3", "h2h_vs": {}},
-    "Warriors": {"off": 116.2, "def": 115.5, "pace": 101.5, "wins": 42, "losses": 30, "streak": "W2", "h2h_vs": {"Celtics": [0, 1, 0]}},
-    "Knicks": {"off": 116.0, "def": 111.4, "pace": 96.2, "wins": 45, "losses": 27, "streak": "W5", "h2h_vs": {}},
-    "Lakers": {"off": 115.4, "def": 112.1, "pace": 100.2, "wins": 43, "losses": 29, "streak": "L2", "h2h_vs": {"Celtics": [0, 0, 1], "Nuggets": [0, 0, 0]}},
-    "Suns": {"off": 114.8, "def": 114.2, "pace": 99.0, "wins": 41, "losses": 31, "streak": "W1", "h2h_vs": {}},
-    "Timberwolves": {"off": 113.5, "def": 108.4, "pace": 97.5, "wins": 50, "losses": 22, "streak": "L1", "h2h_vs": {}},
-    "Heat": {"off": 112.1, "def": 110.2, "pace": 95.8, "wins": 39, "losses": 33, "streak": "L3", "h2h_vs": {}}
-}
-
-# -------------------------
-# 3. SIDEBAR LEAGUE STANDINGS
-# -------------------------
-st.sidebar.markdown("## 📊 League Leaderboard")
-st.sidebar.markdown("Current NBA Power Rankings & Streaks")
-
-# Sort teams by total wins
-sorted_teams = sorted(TEAM_DATA.items(), key=lambda x: x[1]
+    "Bucks": {"off": 117.9, "def": 115.1, "pace": 100.8, "wins": 48
