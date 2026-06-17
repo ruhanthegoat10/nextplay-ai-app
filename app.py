@@ -4,299 +4,323 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 import joblib
 import os
-import random
+import time
 
 # -------------------------
-# 1. PREMIUM ULTRADARK DESIGN CONFIG (CLIPBOARD-SAFE)
+# 1. ENTERPRISE CANVAS SETUP
 # -------------------------
 st.set_page_config(
-    page_title="NextPlay AI Elite",
-    page_icon="⚡",
+    page_title="NextPlay AI Enterprise",
+    page_icon="🔮",
     layout="wide"
 )
 
-# Bulletproof styling vector using single-line items to prevent copy-paste truncation bugs
+# High-end Sports Dashboard Styling
 styles = [
-    ".stApp { background: linear-gradient(180deg, #05050a 0%, #0a0b10 100%); }",
-    ".main-title { text-align: center; color: #ffffff; font-size: 3.2rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 5px; font-family: 'Inter', sans-serif; }",
-    ".sub-title { text-align: center; color: #38bdf8; font-size: 1.05rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 30px; }",
-    ".dashboard-card { background: #0f111a; padding: 22px; border-radius: 12px; border: 1px solid #1e2235; margin-bottom: 15px; }",
-    ".vs-container { text-align: center; font-size: 2.2rem; font-weight: 900; color: #334155; line-height: 120px; }",
-    ".card-header { color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 15px; }",
-    ".stat-label { color: #94a3b8; font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 4px; }",
-    ".live-ticker { background: #161b2e; border-left: 4px solid #10b981; padding: 12px; border-radius: 6px; color: #10b981; font-family: monospace; font-size: 0.95rem; margin-bottom: 10px; }",
-    "div[data-baseweb='select'] { background-color: #161925 !important; border-radius: 8px !important; }",
+    ".stApp { background: linear-gradient(180deg, #020205 0%, #080914 100%); }",
+    ".main-title { text-align: center; color: #ffffff; font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; margin-bottom: 0px; font-family: 'Inter', sans-serif; }",
+    ".sub-title { text-align: center; color: #06b6d4; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 40px; }",
+    ".matrix-card { background: #0b0d19; padding: 25px; border-radius: 14px; border: 1px solid #1e2540; margin-bottom: 20px; }",
+    ".vs-badge { text-align: center; font-size: 2.5rem; font-weight: 900; color: #222947; line-height: 140px; }",
+    ".section-header { color: #475569; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }",
+    ".stat-text { color: #94a3b8; font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 6px; }",
+    ".telemetry-log { background: #070913; border-left: 4px solid #38bdf8; padding: 14px; border-radius: 8px; color: #38bdf8; font-family: monospace; font-size: 0.9rem; margin-bottom: 12px; }",
+    "div[data-baseweb='select'] { background-color: #12162a !important; border-radius: 8px !important; border: 1px solid #232a4f !important; }",
     "div[data-baseweb='select'] * { color: #ffffff !important; }"
 ]
 st.markdown(f"<style>{' '.join(styles)}</style>", unsafe_allow_html=True)
 
 # -------------------------
-# 2. COMPLETE MULTI-SPORT / MULTI-LEAGUE MASTER DATA
+# 2. THE GLOBAL SPORTS ENCYCLOPEDIA
 # -------------------------
-SPORTS_DATABASE = {
-    "🏀 Basketball": {
-        "metrics": {"off_label": "Offensive Rating (Pts/100)", "def_label": "Defensive Rating (Opp Pts/100)", "tempo_label": "Game Tempo (Pace)", "max_val": 130},
+GLOBAL_DB = {
+    "⚽ Soccer": {
+        "metrics": {"att": "Attacking Matrix (xG/90)", "def": "Defensive Matrix (xGA Allowed)", "ctrl": "Midfield Possession Control %", "max": 100},
         "leagues": {
-            "NBA Eastern Conference": {
-                "Celtics": {"off": 120.8, "def": 110.6, "pace": 98.4, "wins": 54, "losses": 18, "streak": "W4"},
-                "Bucks": {"off": 117.9, "def": 115.1, "pace": 100.8, "wins": 48, "losses": 24, "streak": "L1"},
-                "Knicks": {"off": 116.0, "def": 111.4, "pace": 96.2, "wins": 45, "losses": 27, "streak": "W5"},
-                "76ers": {"off": 115.2, "def": 113.0, "pace": 97.8, "wins": 40, "losses": 32, "streak": "W1"},
-                "Heat": {"off": 112.1, "def": 110.2, "pace": 95.8, "wins": 39, "losses": 33, "streak": "L3"}
+            "English Premier League": {
+                "Man City": {"off": 88.5, "def": 28.2, "pace": 63.5, "wins": 28, "losses": 3, "streak": "W5"},
+                "Arsenal": {"off": 82.1, "def": 25.4, "pace": 60.1, "wins": 26, "losses": 4, "streak": "W2"},
+                "Liverpool": {"off": 84.0, "def": 34.1, "pace": 61.8, "wins": 24, "losses": 5, "streak": "D1"},
+                "Chelsea": {"off": 71.4, "def": 42.0, "pace": 56.2, "wins": 19, "losses": 10, "streak": "W4"},
+                "Man United": {"off": 64.2, "def": 48.5, "pace": 54.1, "wins": 17, "losses": 13, "streak": "L1"},
+                "Tottenham": {"off": 73.8, "def": 46.2, "pace": 58.7, "wins": 18, "losses": 12, "streak": "W1"},
+                "Newcastle": {"off": 75.0, "def": 49.1, "pace": 55.4, "wins": 16, "losses": 14, "streak": "L2"},
+                "Aston Villa": {"off": 74.2, "def": 44.8, "pace": 53.9, "wins": 20, "losses": 10, "streak": "D2"}
             },
-            "NBA Western Conference": {
-                "Nuggets": {"off": 118.5, "def": 112.3, "pace": 97.1, "wins": 51, "losses": 21, "streak": "W1"},
-                "Mavericks": {"off": 117.2, "def": 114.8, "pace": 100.1, "wins": 46, "losses": 26, "streak": "W3"},
-                "Lakers": {"off": 115.4, "def": 112.1, "pace": 100.2, "wins": 43, "losses": 29, "streak": "L2"},
-                "Warriors": {"off": 116.2, "def": 115.5, "pace": 101.5, "wins": 42, "losses": 30, "streak": "W2"},
-                "Timberwolves": {"off": 113.5, "def": 108.4, "pace": 97.5, "wins": 50, "losses": 22, "streak": "L1"}
+            "La Liga": {
+                "Real Madrid": {"off": 89.1, "def": 22.4, "pace": 60.5, "wins": 29, "losses": 1, "streak": "W6"},
+                "Barcelona": {"off": 81.4, "def": 32.8, "pace": 62.1, "wins": 24, "losses": 5, "streak": "W2"},
+                "Atletico Madrid": {"off": 74.5, "def": 35.2, "pace": 53.4, "wins": 21, "losses": 8, "streak": "W1"},
+                "Girona": {"off": 78.2, "def": 40.1, "pace": 57.3, "wins": 22, "losses": 7, "streak": "L1"},
+                "Real Sociedad": {"off": 66.8, "def": 31.5, "pace": 52.0, "wins": 16, "losses": 9, "streak": "W1"},
+                "Athletic Bilbao": {"off": 69.4, "def": 33.9, "pace": 54.2, "wins": 17, "losses": 9, "streak": "D2"}
+            },
+            "Serie A": {
+                "Inter Milan": {"off": 85.2, "def": 20.1, "pace": 56.4, "wins": 28, "losses": 2, "streak": "W3"},
+                "AC Milan": {"off": 76.4, "def": 38.2, "pace": 57.8, "wins": 22, "losses": 7, "streak": "D1"},
+                "Juventus": {"off": 64.8, "def": 26.5, "pace": 51.2, "wins": 19, "losses": 6, "streak": "W1"},
+                "Atalanta": {"off": 73.1, "def": 37.4, "pace": 55.9, "wins": 18, "losses": 11, "streak": "W4"},
+                "AS Roma": {"off": 69.0, "def": 39.1, "pace": 54.0, "wins": 17, "losses": 10, "streak": "L1"},
+                "Napoli": {"off": 68.2, "def": 41.5, "pace": 56.1, "wins": 14, "losses": 11, "streak": "D3"}
+            },
+            "Bundesliga": {
+                "Bayer Leverkusen": {"off": 87.9, "def": 23.1, "pace": 61.2, "wins": 28, "losses": 0, "streak": "W4"},
+                "Bayern Munich": {"off": 91.4, "def": 36.8, "pace": 63.0, "wins": 23, "losses": 7, "streak": "W1"},
+                "VfB Stuttgart": {"off": 79.5, "def": 35.2, "pace": 58.4, "wins": 22, "losses": 7, "streak": "W3"},
+                "Borussia Dortmund": {"off": 72.0, "def": 40.3, "pace": 57.9, "wins": 18, "losses": 7, "streak": "L1"},
+                "RB Leipzig": {"off": 78.4, "def": 36.1, "pace": 59.5, "wins": 20, "losses": 9, "streak": "W2"}
+            },
+            "Ligue 1": {
+                "PSG": {"off": 88.0, "def": 30.4, "pace": 64.2, "wins": 22, "losses": 2, "streak": "W2"},
+                "Monaco": {"off": 74.1, "def": 41.2, "pace": 57.0, "wins": 17, "losses": 8, "streak": "W3"},
+                "Brest": {"off": 63.5, "def": 31.2, "pace": 52.8, "wins": 16, "losses": 7, "streak": "D1"},
+                "Lille": {"off": 66.2, "def": 30.9, "pace": 54.5, "wins": 15, "losses": 8, "streak": "W1"},
+                "Nice": {"off": 54.8, "def": 26.1, "pace": 51.3, "wins": 15, "losses": 10, "streak": "L1"}
             }
         }
     },
-    "⚽ Soccer": {
-        "metrics": {"off_label": "Expected Goals Scored (xG)", "def_label": "Expected Goals Allowed (xGA)", "tempo_label": "Possession Control %", "max_val": 100},
+    "🏀 Basketball": {
+        "metrics": {"att": "Offensive Production Matrix", "def": "Defensive Stop Efficiency", "ctrl": "Possession Pace Setting", "max": 140},
         "leagues": {
-            "English Premier League": {
-                "Man City": {"off": 84.5, "def": 31.2, "pace": 62.1, "wins": 26, "losses": 5, "streak": "W5"},
-                "Arsenal": {"off": 79.2, "def": 28.4, "pace": 58.4, "wins": 25, "losses": 6, "streak": "W2"},
-                "Liverpool": {"off": 81.0, "def": 36.5, "pace": 60.2, "wins": 22, "losses": 6, "streak": "D1"},
-                "Chelsea": {"off": 68.3, "def": 45.1, "pace": 54.8, "wins": 18, "losses": 11, "streak": "W3"},
-                "Man United": {"off": 57.4, "def": 50.2, "pace": 52.1, "wins": 16, "losses": 14, "streak": "L1"}
+            "NBA Eastern Conference": {
+                "Celtics": {"off": 122.2, "def": 110.6, "pace": 98.4, "wins": 62, "losses": 16, "streak": "W2"},
+                "Bucks": {"off": 118.4, "def": 115.1, "pace": 100.8, "wins": 49, "losses": 29, "streak": "L1"},
+                "Knicks": {"off": 116.9, "def": 111.4, "pace": 96.2, "wins": 47, "losses": 31, "streak": "W4"},
+                "76ers": {"off": 115.8, "def": 113.0, "pace": 97.8, "wins": 45, "losses": 33, "streak": "W1"},
+                "Cavaliers": {"off": 114.2, "def": 112.1, "pace": 97.2, "wins": 46, "losses": 32, "streak": "L2"},
+                "Pacers": {"off": 121.0, "def": 118.9, "pace": 102.1, "wins": 44, "losses": 34, "streak": "W2"},
+                "Heat": {"off": 112.8, "def": 110.2, "pace": 95.8, "wins": 43, "losses": 35, "streak": "W1"},
+                "Magic": {"off": 111.5, "def": 110.4, "pace": 96.9, "wins": 46, "losses": 32, "streak": "L3"}
             },
-            "La Liga": {
-                "Real Madrid": {"off": 81.2, "def": 24.5, "pace": 59.8, "wins": 27, "losses": 1, "streak": "W4"},
-                "Barcelona": {"off": 74.8, "def": 34.1, "pace": 61.4, "wins": 22, "losses": 5, "streak": "W1"},
-                "Atletico Madrid": {"off": 67.5, "def": 38.0, "pace": 51.2, "wins": 20, "losses": 9, "streak": "W2"},
-                "Girona": {"off": 72.1, "def": 42.3, "pace": 56.5, "wins": 21, "losses": 7, "streak": "L1"}
+            "NBA Western Conference": {
+                "Thunder": {"off": 118.9, "def": 111.5, "pace": 100.2, "wins": 55, "losses": 23, "streak": "W3"},
+                "Nuggets": {"off": 118.5, "def": 112.3, "pace": 97.1, "wins": 54, "losses": 24, "streak": "W1"},
+                "Timberwolves": {"off": 114.2, "def": 108.4, "pace": 97.5, "wins": 54, "losses": 24, "streak": "L1"},
+                "Clippers": {"off": 118.2, "def": 114.6, "pace": 97.9, "wins": 50, "losses": 28, "streak": "W3"},
+                "Mavericks": {"off": 117.6, "def": 114.8, "pace": 100.1, "wins": 48, "losses": 30, "streak": "W1"},
+                "Suns": {"off": 116.8, "def": 114.2, "pace": 99.0, "wins": 46, "losses": 32, "streak": "L1"},
+                "Lakers": {"off": 115.9, "def": 114.9, "pace": 101.1, "wins": 45, "losses": 34, "streak": "W1"},
+                "Warriors": {"off": 116.2, "def": 115.5, "pace": 101.5, "wins": 44, "losses": 34, "streak": "W2"}
             }
         }
     },
     "🏈 Football": {
-        "metrics": {"off_label": "Points Per Game (PPG)", "def_label": "Points Allowed Per Game", "tempo_label": "Third Down Conversion %", "max_val": 60},
+        "metrics": {"att": "Points Generated per Outing", "def": "Points Countered per Outing", "ctrl": "3rd Down Execution Ratio", "max": 55},
         "leagues": {
             "AFC Conference": {
-                "Chiefs": {"off": 28.4, "def": 17.3, "pace": 46.5, "wins": 13, "losses": 4, "streak": "W2"},
-                "Ravens": {"off": 27.7, "def": 16.5, "pace": 44.1, "wins": 13, "losses": 4, "streak": "W1"},
-                "Bills": {"off": 26.5, "def": 18.3, "pace": 43.2, "wins": 11, "losses": 6, "streak": "W3"},
-                "Texans": {"off": 22.2, "def": 21.1, "pace": 40.5, "wins": 10, "losses": 7, "streak": "L1"}
+                "Chiefs": {"off": 28.6, "def": 17.1, "pace": 47.1, "wins": 14, "losses": 3, "streak": "W4"},
+                "Ravens": {"off": 27.9, "def": 16.2, "pace": 44.5, "wins": 13, "losses": 4, "streak": "L1"},
+                "Bills": {"off": 26.8, "def": 18.5, "pace": 43.0, "wins": 11, "losses": 6, "streak": "W2"},
+                "Texans": {"off": 22.4, "def": 20.8, "pace": 41.2, "wins": 10, "losses": 7, "streak": "W1"},
+                "Dolphins": {"off": 29.2, "def": 23.0, "pace": 46.8, "wins": 11, "losses": 6, "streak": "L2"},
+                "Browns": {"off": 23.3, "def": 21.3, "pace": 38.5, "wins": 11, "losses": 6, "streak": "W1"}
             },
             "NFC Conference": {
-                "49ers": {"off": 29.1, "def": 18.1, "pace": 48.2, "wins": 12, "losses": 5, "streak": "L1"},
-                "Lions": {"off": 27.1, "def": 23.2, "pace": 45.8, "wins": 12, "losses": 5, "streak": "W4"},
-                "Eagles": {"off": 25.5, "def": 25.2, "pace": 42.8, "wins": 11, "losses": 6, "streak": "L3"},
-                "Packers": {"off": 22.5, "def": 20.6, "pace": 41.2, "wins": 9, "losses": 8, "streak": "W1"}
+                "49ers": {"off": 28.9, "def": 17.5, "pace": 48.0, "wins": 12, "losses": 5, "streak": "W1"},
+                "Lions": {"off": 27.4, "def": 23.2, "pace": 46.1, "wins": 12, "losses": 5, "streak": "W3"},
+                "Eagles": {"off": 25.5, "def": 24.8, "pace": 42.5, "wins": 11, "losses": 6, "streak": "L1"},
+                "Packers": {"off": 22.8, "def": 20.3, "pace": 41.9, "wins": 9, "losses": 8, "streak": "W2"},
+                "Cowboys": {"off": 29.9, "def": 18.5, "pace": 44.2, "wins": 12, "losses": 5, "streak": "L1"},
+                "Buccaneers": {"off": 20.5, "def": 19.1, "pace": 39.0, "wins": 9, "losses": 8, "streak": "W1"}
             }
         }
     },
-    "⚾ Baseball": {
-        "metrics": {"off_label": "Runs Created Index (wRC+)", "def_label": "Earned Run Average (ERA x 20)", "tempo_label": "Team Slugging Pct (SLG %)", "max_val": 160},
+    "🏈 Baseball": {
+        "metrics": {"att": "Weighted Runs Created Matrix (wRC+)", "def": "Defensive Pitching Run Prevent Value", "ctrl": "Isolated Slugging Pct Matrix", "max": 160},
         "leagues": {
             "American League": {
-                "Yankees": {"off": 114.0, "def": 79.0, "pace": 43.8, "wins": 92, "losses": 70, "streak": "W3"},
-                "Orioles": {"off": 116.0, "def": 81.4, "pace": 44.9, "wins": 95, "losses": 67, "streak": "W1"},
-                "Astros": {"off": 112.5, "def": 84.2, "pace": 42.1, "wins": 90, "losses": 72, "streak": "L1"}
+                "Yankees": {"off": 115.2, "def": 78.4, "pace": 44.1, "wins": 94, "losses": 68, "streak": "W2"},
+                "Orioles": {"off": 117.0, "def": 80.2, "pace": 45.3, "wins": 96, "losses": 66, "streak": "W1"},
+                "Astros": {"off": 113.1, "def": 83.9, "pace": 42.5, "wins": 89, "losses": 73, "streak": "L1"},
+                "Guardians": {"off": 104.5, "def": 76.1, "pace": 40.2, "wins": 92, "losses": 70, "streak": "W3"},
+                "Mariners": {"off": 102.0, "def": 73.5, "pace": 41.0, "wins": 88, "losses": 74, "streak": "L2"}
             },
             "National League": {
-                "Dodgers": {"off": 122.0, "def": 74.0, "pace": 45.5, "wins": 98, "losses": 64, "streak": "W1"},
-                "Braves": {"off": 125.0, "def": 76.2, "pace": 47.1, "wins": 101, "losses": 61, "streak": "L2"},
-                "Phillies": {"off": 109.0, "def": 78.5, "pace": 41.8, "wins": 90, "losses": 72, "streak": "W2"}
+                "Dodgers": {"off": 124.5, "def": 73.1, "pace": 46.2, "wins": 100, "losses": 62, "streak": "W4"},
+                "Braves": {"off": 126.0, "def": 75.8, "pace": 47.5, "wins": 104, "losses": 58, "streak": "L1"},
+                "Phillies": {"off": 110.2, "def": 77.4, "pace": 42.1, "wins": 95, "losses": 67, "streak": "W2"},
+                "Brewers": {"off": 106.1, "def": 81.0, "pace": 41.5, "wins": 92, "losses": 70, "streak": "W1"},
+                "Padres": {"off": 108.4, "def": 82.5, "pace": 43.0, "wins": 82, "losses": 80, "streak": "L3"}
             }
         }
     }
 }
 
 # -------------------------
-# 3. SELECTION MENU NAVIGATION
+# 3. INTERACTIVE OPERATIONS WORKSPACE
 # -------------------------
-selected_sport = st.sidebar.selectbox("🎯 SPORT TYPE", list(SPORTS_DATABASE.keys()))
-SPORT_CONFIG = SPORTS_DATABASE[selected_sport]
+selected_sport = st.sidebar.selectbox("⚡ SELECT ENTERPRISE ENGINE", list(GLOBAL_DB.keys()))
+SPORT_CONFIG = GLOBAL_DB[selected_sport]
 METRICS = SPORT_CONFIG["metrics"]
 
-selected_league_away = st.sidebar.selectbox("🔴 AWAY LEAGUE", list(SPORT_CONFIG["leagues"].keys()), key="l_away")
-selected_league_home = st.sidebar.selectbox("🔵 HOME LEAGUE", list(SPORT_CONFIG["leagues"].keys()), key="l_home")
+sub_league_away = st.sidebar.selectbox("🗺️ AWAY SYSTEM REGION", list(SPORT_CONFIG["leagues"].keys()), key="reg_away")
+sub_league_home = st.sidebar.selectbox("🗺️ HOME SYSTEM REGION", list(SPORT_CONFIG["leagues"].keys()), key="reg_home")
 
-AWAY_LEAGUE_TEAMS = SPORT_CONFIG["leagues"][selected_league_away]
-HOME_LEAGUE_TEAMS = SPORT_CONFIG["leagues"][selected_league_home]
+AWAY_SYSTEM = SPORT_CONFIG["leagues"][sub_league_away]
+HOME_SYSTEM = SPORT_CONFIG["leagues"][sub_league_home]
 
-# Unique path generation per sport category
-clean_sport_id = selected_sport.split()[-1].lower()
-MODEL_PATH = f"nextplay_{clean_sport_id}_model.pkl"
+MODEL_KEY = f"enterprise_{selected_sport.split()[-1].lower()}_v11.pkl"
 
 # -------------------------
-# 4. RANDOM FOREST ENGINE SELF-TRAINING
+# 4. RANDOM FOREST INFERENCE SYSTEM CORE
 # -------------------------
 @st.cache_resource
-def get_trained_model(sport_key, file_path):
+def load_enterprise_classifier(file_path):
     if os.path.exists(file_path):
         return joblib.load(file_path)
     
-    np.random.seed(42)
-    num_games = 2000
+    np.random.seed(101)
+    samples = 5000
     
-    home_off = np.random.normal(100, 15, num_games)
-    away_off = np.random.normal(100, 15, num_games)
-    home_def = np.random.normal(100, 15, num_games)
-    away_def = np.random.normal(100, 15, num_games)
-    home_rest = np.random.choice([-3.0, 0.0, 2.0], size=num_games, p=[0.2, 0.6, 0.2])
-    away_rest = np.random.choice([-3.0, 0.0, 2.0], size=num_games, p=[0.2, 0.6, 0.2])
+    # Generate high-dimensional array vectors representing modern real-world match parameters
+    h_off = np.random.normal(105, 12, samples)
+    a_off = np.random.normal(105, 12, samples)
+    h_def = np.random.normal(100, 12, samples)
+    a_def = np.random.normal(100, 12, samples)
+    h_form = np.random.uniform(0.2, 1.0, samples)
+    a_form = np.random.uniform(0.2, 1.0, samples)
     
-    score_delta = (home_off + home_rest + 2.0 - away_def) - (away_off + away_rest - home_def)
-    prob = 1 / (1 + np.exp(-score_delta / 10.0))
-    home_won = (np.random.rand(num_games) < prob).astype(int)
+    advantage_delta = (h_off * h_form + 3.0 - a_def) - (a_off * a_form - h_def)
+    probabilities = 1 / (1 + np.exp(-advantage_delta / 8.0))
+    home_victorious = (np.random.rand(samples) < probabilities).astype(int)
     
-    df = pd.DataFrame({
-        "home_off": home_off, "away_off": away_off,
-        "home_def": home_def, "away_def": away_def,
-        "home_rest": home_rest, "away_rest": away_rest,
-        "home_won": home_won
+    features_df = pd.DataFrame({
+        "h_off": h_off, "a_off": a_off, "h_def": h_def, "a_def": a_def,
+        "h_form": h_form, "a_form": a_form
     })
     
-    X = df[["home_off", "away_off", "home_def", "away_def", "home_rest", "away_rest"]]
-    y = df["home_won"]
-    
-    clf = RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42)
-    clf.fit(X, y)
+    clf = RandomForestClassifier(n_estimators=200, max_depth=10, random_state=101)
+    clf.fit(features_df, home_victorious)
     joblib.dump(clf, file_path)
     return clf
 
-ai_classifier = get_trained_model(selected_sport, MODEL_PATH)
+ai_engine = load_enterprise_classifier(MODEL_KEY)
 
 # -------------------------
-# 5. SIDEBAR DYNAMIC LEADERBOARD
+# 5. SIDEBAR INDUSTRIAL TELEMETRY
 # -------------------------
-st.sidebar.markdown(f"### 📊 LEAGUE RECORD MATRIX")
+st.sidebar.markdown("### 📊 ACTIVE LEAGUE INDEX")
 st.sidebar.markdown("---")
+combined_index = {}
+combined_index.update(AWAY_SYSTEM)
+combined_index.update(HOME_SYSTEM)
 
-all_current_teams = {}
-all_current_teams.update(AWAY_LEAGUE_TEAMS)
-all_current_teams.update(HOME_LEAGUE_TEAMS)
-
-sorted_teams = sorted(all_current_teams.items(), key=lambda x: x[1]["wins"], reverse=True)
-for idx, (name, data) in enumerate(sorted_teams, 1):
-    st.sidebar.markdown(f"`{idx:02d}` **{name}** ({data['wins']}-{data['losses']}) • `{data['streak']}`")
+for idx, (team_name, stats) in enumerate(sorted(combined_index.items(), key=lambda s: s[1]['wins'], reverse=True), 1):
+    st.sidebar.markdown(f"`{idx:02d}` **{team_name}** ({stats['wins']}-{stats['losses']}) • `{stats['streak']}`")
 
 # -------------------------
-# 6. LOGO HEADER BRANDING
+# 6. VECTOR BRANDING OVERLAY
 # -------------------------
 st.markdown("""
-<div style="text-align: center; margin-top: 15px;">
-    <svg width="70" height="70" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="50,5 95,30 95,80 50,95 5,80 5,30" fill="#0f111a" stroke="#38bdf8" stroke-width="4"/>
-        <path d="M30 40 L50 25 L70 40 L50 75 Z" fill="#06b6d4" opacity="0.3"/>
-        <path d="M50 20 L25 45 L50 55 L75 45 Z" fill="#38bdf8"/>
-        <line x1="50" y1="55" x2="50" y2="85" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+<div style="text-align: center; margin-top: 10px;">
+    <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" stroke="#06b6d4" stroke-width="5" fill="#070914"/>
+        <path d="M50 25 L75 45 L50 65 L25 45 Z" fill="#38bdf8" opacity="0.8"/>
+        <circle cx="50" cy="45" r="8" fill="#ffffff"/>
     </svg>
 </div>
 """, unsafe_allow_html=True)
-
-st.markdown("<div class='main-title'>⚡ NEXTPLAY AI ELITE</div>", unsafe_allow_html=True)
-st.markdown(f"<div class='sub-title'>{selected_sport} CROSS-CONFERENCE ANALYTICS SYSTEM</div>", unsafe_allow_html=True)
+st.markdown("<div class='main-title'>NEXTPLAY AI ENTERPRISE</div>", unsafe_allow_html=True)
+st.markdown(f"<div class='sub-title'>High-Performance Predictive Vector Array • {selected_sport}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# 7. WORKSPACE SYSTEM CONTROL LAYOUT
+# 7. MAIN ENGINE GRID COMPONENT
 # -------------------------
 col1, col2, col3 = st.columns([9, 2, 9])
 
 with col1:
-    st.markdown("<div class='dashboard-card'>", unsafe_allow_html=True)
-    st.markdown(f"<p class='card-header'>🔴 AWAY: {selected_league_away}</p>", unsafe_allow_html=True)
-    team1 = st.selectbox("Select Franchise / Club", list(AWAY_LEAGUE_TEAMS.keys()), index=0, key="team_away_box")
-    t1_rest = st.select_slider("Conditioning Status", options=["Tired (B2B)", "Normal", "Fresh (3+ Days)"], value="Normal", key="rest_away_box")
+    st.markdown("<div class='matrix-card'>", unsafe_allow_html=True)
+    st.markdown(f"<div class='section-header'>🔴 AWAY TEAM OPERATIONAL NODE</div>", unsafe_allow_html=True)
+    team_away = st.selectbox("Select Target Unit", list(AWAY_SYSTEM.keys()), index=1 if len(AWAY_SYSTEM)>1 else 0, key="sel_away")
+    away_form_slider = st.slider("Current Form Vector (Last 5 Outings)", 0.0, 1.0, 0.75, key="form_away")
     st.markdown("</div>", unsafe_allow_html=True)
 
 with col2:
-    st.markdown("<div class='vs-container'>VS</div>", unsafe_allow_html=True)
+    st.markdown("<div class='vs-badge'>VS</div>", unsafe_allow_html=True)
 
 with col3:
-    st.markdown("<div class='dashboard-card'>", unsafe_allow_html=True)
-    st.markdown(f"<p class='card-header'>🔵 HOME: {selected_league_home}</p>", unsafe_allow_html=True)
-    filtered_home_teams = [t for t in HOME_LEAGUE_TEAMS.keys() if t != team1 or selected_league_away != selected_league_home]
-    team2 = st.selectbox("Select Franchise / Club", filtered_home_teams, index=0, key="team_home_box")
-    t2_rest = st.select_slider("Conditioning Status", options=["Tired (B2B)", "Normal", "Fresh (3+ Days)"], value="Normal", key="rest_home_box")
+    st.markdown("<div class='matrix-card'>", unsafe_allow_html=True)
+    st.markdown(f"<div class='section-header'>🔵 HOME TEAM OPERATIONAL NODE</div>", unsafe_allow_html=True)
+    allowable_home_targets = [t for t in HOME_SYSTEM.keys() if t != team_away or sub_league_away != sub_league_home]
+    team_home = st.selectbox("Select Target Unit", allowable_home_targets, index=0, key="sel_home")
+    home_form_slider = st.slider("Current Form Vector (Last 5 Outings)", 0.0, 1.0, 0.80, key="form_home")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# -------------------------
-# 8. VISUAL PROFILE ACCENT BARS
-# -------------------------
-def draw_stat_bar(label, val1, val2, max_val):
-    st.markdown(f"<span class='stat-label'>{label}</span>", unsafe_allow_html=True)
-    col_a, col_b = st.columns(2)
-    with col_a:
-        st.progress(min(1.0, float(val1) / max_val), text=f"{team1}: {val1}")
-    with col_b:
-        st.progress(min(1.0, float(val2) / max_val), text=f"{team2}: {val2}")
+# Progress Bar Compiler
+def compile_metric_row(label, val1, val2, max_v):
+    st.markdown(f"<span class='stat-text'>{label}</span>", unsafe_allow_html=True)
+    c_left, c_right = st.columns(2)
+    with c_left: st.progress(min(1.0, float(val1)/max_v), text=f"{team_away}: {val1}")
+    with c_right: st.progress(min(1.0, float(val2)/max_v), text=f"{team_home}: {val2}")
 
 # -------------------------
-# 9. INFERENCE RUNNER WITH REAL-TIME FEED EMULATION
+# 8. HIGH-SPEED AI PROCESSING LAYER
 # -------------------------
 st.markdown("<br>", unsafe_allow_html=True)
-if st.button("🔮 EXECUTE MACHINE LEARNING SIMULATION RUN", use_container_width=True):
-    t1_data = AWAY_LEAGUE_TEAMS[team1]
-    t2_data = HOME_LEAGUE_TEAMS[team2]
+if st.button("🚀 COMPUTE ADVANCED RANDOM FOREST PREDICTION ARRAYS", use_container_width=True):
+    d_away = AWAY_SYSTEM[team_away]
+    d_home = HOME_SYSTEM[team_home]
     
-    # Live Active Telemetry Log Output Ticker
-    st.markdown("### 📡 STREAMING LIVE TELEMETRY TICKER")
-    ticker_placeholder = st.empty()
+    st.markdown("### 📡 REAL-TIME CLASSIFIER LOGS")
+    log_box = st.empty()
     
-    events_pool = [
-        "Connecting data matrix arrays...",
-        "Measuring stadium geographic advantage multipliers...",
-        "Re-processing roster tracking telemetry matrices...",
-        "Configuring Decision Node trees...",
-        "Synchronizing historical feature values..."
+    # Simulating standard live data processing sequences
+    logs = [
+        "[CONNECT] Fetching live offensive and defensive weights...",
+        "[COMPUTE] Injecting Form Weights into deep random forest branches...",
+        "[RUNNING] Extrapolating stadium node advantage variables (+3.0 index)...",
+        "[SUCCESS] Feature array compiled into single matrix vector row."
     ]
     
-    selected_logs = random.sample(events_pool, 3)
-    for log in selected_logs:
-        ticker_placeholder.markdown(f"<div class='live-ticker'>[TELEMETRY] {log}</div>", unsafe_allow_html=True)
-        # Sequence simulator break 
-        np.random.seed()
-        
-    ticker_placeholder.markdown(f"<div class='live-ticker' style='border-color:#38bdf8; color:#38bdf8;'>[SYSTEM] Target matrices aligned. Processing live model evaluation parameters...</div>", unsafe_allow_html=True)
+    curr_log_stream = []
+    for log in logs:
+        curr_log_stream.append(log)
+        log_box.markdown("".join([f"<div class='telemetry-log'>{l}</div>" for l in curr_log_stream]), unsafe_allow_html=True)
+        time.sleep(0.15)
 
-    rest_map = {"Tired (B2B)": -3.0, "Normal": 0.0, "Fresh (3+ Days)": 2.0}
-    
-    matchup_features = pd.DataFrame([{
-        "home_off": t2_data["off"], "away_off": t1_data["off"],
-        "home_def": t2_data["def"], "away_def": t1_data["def"],
-        "home_rest": rest_map[t2_rest], "away_rest": rest_map[t1_rest]
+    # Executing actual matrix classification
+    live_features = pd.DataFrame([{
+        "h_off": d_home["off"], "a_off": d_away["off"],
+        "h_def": d_home["def"], "a_def": d_away["def"],
+        "h_form": home_form_slider, "a_form": away_form_slider
     }])
     
-    probabilities = ai_classifier.predict_proba(matchup_features)[0]
-    t2_win_prob = probabilities[1] * 100
-    t1_win_prob = probabilities[0] * 100
+    inferred_probabilities = ai_engine.predict_proba(live_features)[0]
+    p_home_win = inferred_probabilities[1] * 100
+    p_away_win = inferred_probabilities[0] * 100
     
-    if t1_win_prob > t2_win_prob:
-        winner, win_prob = team1, round(t1_win_prob, 1)
-    else:
-        winner, win_prob = team2, round(t2_win_prob, 1)
+    predicted_winner = team_home if p_home_win > p_away_win else team_away
+    confidence_metric = round(max(p_home_win, p_away_win), 2)
 
-    st.markdown("<div class='dashboard-card' style='border-top: 3px solid #38bdf8; margin-top: 20px;'>", unsafe_allow_html=True)
-    st.markdown("### 🧬 SIMULATION RUN INFERENCE ANALYSIS PROFILE")
+    # -------------------------
+    # 9. TELEMETRY OUTPUT DISPLAY
+    # -------------------------
+    st.markdown("<div class='matrix-card' style='border-top: 4px solid #06b6d4;'>", unsafe_allow_html=True)
+    st.markdown("### 🧬 MULTI-VARIABLE INFERENCE ANALYSIS REPORT")
     st.markdown("---")
     
-    out_left, out_right = st.columns([5, 6])
+    grid_left, grid_right = st.columns([5, 6])
     
-    with out_left:
-        st.markdown("<p style='font-size: 1.1rem; color: #94a3b8; font-weight: 700; margin-bottom: 2px;'>ALGORITHMIC PROBABILITY DISTRIBUTION</p>", unsafe_allow_html=True)
-        st.markdown(f"<h1 style='color: #ffffff; font-size: 2.4rem; font-weight: 800;'>PROJECTED WINNER: <span style='color: #06b6d4;'>{winner}</span></h1>", unsafe_allow_html=True)
+    with grid_left:
+        st.markdown("<p style='font-size: 0.85rem; color: #475569; font-weight: 800; letter-spacing:0.05em;'>AI OUTCOME PROBABILITY MATRIX</p>", unsafe_allow_html=True)
+        st.markdown(f"<h1 style='color: #ffffff; font-size: 2.5rem; font-weight: 900; margin-top:10px;'>PREDICTED WINNER: <span style='color: #22d3ee;'>{predicted_winner}</span></h1>", unsafe_allow_html=True)
         
-        st.metric(label="Calculated Model Prediction Confidence Index", value=f"{win_prob}%")
-        st.progress(win_prob / 100)
-        st.markdown("<p style='font-size:0.95rem; margin-top:25px; color:#64748b;'>Weights are parsed using sport-specific node paths trained inside random forest arrays.</p>", unsafe_allow_html=True)
+        st.metric(label="Calculated Model Confidence Weighting", value=f"{confidence_metric}%")
+        st.progress(confidence_metric / 100.0)
+        st.markdown("<p style='font-size:0.85rem; color:#475569; margin-top:20px;'>*Prediction derived via complex random forest decision nodes configured specifically for elite gaming frameworks.</p>", unsafe_allow_html=True)
         
-    with out_right:
-        st.markdown("<p class='card-header' style='margin-bottom: 20px;'>STRATEGY VALUE DISTRIBUTION MATRIX</p>", unsafe_allow_html=True)
-        draw_stat_bar(METRICS["off_label"], t1_data["off"], t2_data["off"], METRICS["max_val"])
+    with grid_right:
+        st.markdown("<p class='section-header'>SYSTEM ADVANTAGE CORE GRAPH GRID</p>", unsafe_allow_html=True)
+        compile_metric_row(METRICS["att"], d_away["off"], d_home["off"], METRICS["max"])
         st.markdown("<br>", unsafe_allow_html=True)
-        draw_stat_bar(METRICS["def_label"], t1_data["def"], t2_data["def"], METRICS["max_val"])
+        compile_metric_row(METRICS["def"], d_away["def"], d_home["def"], METRICS["max"])
         st.markdown("<br>", unsafe_allow_html=True)
-        draw_stat_bar(METRICS["tempo_label"], t1_data["pace"], t2_data["pace"], METRICS["max_val"])
+        compile_metric_row(METRICS["ctrl"], d_away["pace"], d_home["pace"], METRICS["max"])
         
     st.markdown("</div>", unsafe_allow_html=True)
 
 # -------------------------
-# TECHNICAL FOOTER
+# SYSTEM FOOTER
 # -------------------------
-st.markdown("<br><hr style='border-color: #1e2235;'>", unsafe_allow_html=True)
-st.caption("NextPlay AI Elite • Version 10.0 Multi-Sport Clean Canvas • Engineered for Advanced Sports Data Analytics")
+st.markdown("<br><hr style='border-color: #1e2540;'>", unsafe_allow_html=True)
+st.caption("NextPlay AI Enterprise Systems • Version 11.0 Stable Platform Canvas • Core Industrial Infrastructure")
