@@ -1,10 +1,10 @@
 import streamlit as st
 import urllib.request
 import json
-import re
+import datetime
 
 # -------------------------
-# 1. PREMIUM NEXUS STYLING
+# 1. PREMIUM GLASSMORPHISM CANVAS & STYLING
 # -------------------------
 st.set_page_config(
     page_title="NextPlay AI Nexus",
@@ -38,6 +38,13 @@ st.markdown("""
         padding: 22px; border-radius: 16px; color: #e2e8f0; 
         font-size: 1.05rem; line-height: 1.65; margin-bottom: 20px; margin-right: 10%; 
     }
+    .score-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(168, 85, 247, 0.2);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
     div[data-testid='stForm'] { border: none !important; padding: 0 !important; background: transparent !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -46,7 +53,7 @@ if "nexus_history" not in st.session_state:
     st.session_state.nexus_history = []
 
 # -------------------------
-# 2. HEADER & LOGO
+# 2. APP LOGO & HEADER
 # -------------------------
 st.markdown("""
 <div style="text-align: center; margin-top: 30px;">
@@ -58,7 +65,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 st.markdown("<div class='main-title'>NEXTPLAY AI NEXUS</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub-title'>Omni-Sport Live Dashboard Engine</div>", unsafe_allow_html=True)
+st.markdown("<div class='sub-title'>Real-Time Live Sports Tracker Engine</div>", unsafe_allow_html=True)
 
 # -------------------------
 # 3. CHAT CANVAS FEED
@@ -72,76 +79,105 @@ for message in st.session_state.nexus_history:
         st.markdown(f"<div class='ai-bubble'>🔹 <b>NextPlay Hub:</b><br><br>{message['content']}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# 4. LIVE OPEN DATA COGNITIVE SCANNERS
+# 4. LIVE LIVE DATA WEB FETCHERS
 # -------------------------
-def search_live_sports_feed(prompt):
-    inp = prompt.lower()
-    
-    # Context Category Routing
-    if "world cup" in inp or "cup" in inp:
-        try:
-            # Reaching out to open-source sports API layouts to pull tournament configurations safely
-            req = urllib.request.Request(
-                "https://worldcupjson.net/matches/current", 
-                headers={'User-Agent': 'Mozilla/5.0'}
-            )
-            with urllib.request.urlopen(req, timeout=5) as response:
-                data = json.loads(response.read().decode())
-                
-            if not data:
-                return """### 🏆 World Cup Live Tournament Update
-                
-No live fixtures are actively playing this exact minute. Here is the tournament status layout:
-* **Current Stage:** Round-robin matches and knockout brackets are updating dynamically.
-* **Standings Impact:** Goal differences are heavily driving team rank variations.
-* **Next Action:** Fixtures refresh on the hour as international scheduling continues."""
+def get_live_scores():
+    try:
+        # Pulls absolute up-to-the-minute live football matches from a public scraper network
+        url = "https://worldcupjson.net/matches"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=6) as response:
+            matches = json.loads(response.read().decode())
             
-            output = "### 🏆 Live World Cup Matches Right Now!\n\n"
-            for match in data:
-                output += f"⚽ **{match['home_team']['name']}** vs **{match['away_team']['name']}**\n"
-                output += f"* **Score:** {match['home_team']['goals']} - {match['away_team']['goals']}\n"
-                output += f"* **Status:** {match['status'].title()} | **Stage:** {match['stage_name']}\n\n"
-            return output
+        if not matches:
+            return "### 🏟️ Live Match Center\n\nNo matches are currently active on the main tournament blocks right now. Check back during scheduled match windows!"
             
-        except Exception:
-            return """### 🏆 World Cup Operational Desk
-            
-The international match feeds are currently updating.
-* **Live Schedule:** Teams are coordinating matches according to daily tournament windows.
-* **Tactical Trend:** Heavy emphasis on low defensive defensive shapes during second-half containment setups."""
-
-    elif "liverpool" in inp or "man city" in inp or "score" in inp or "match" in inp:
-        # Provide a clean, robust match intelligence layout instead of breaking characters
-        return """### ⚽ Premier League Fixture Matrix
-
-* **Matchup:** Liverpool vs Manchester City
-* **Tactical Setup:** High-pressing offensive blocks meeting rapid transitional wing play.
-* **Form Guide:** Both squads are sitting within the top 3 table tiers, maximizing critical point weightings.
-* **Analyst Consensus:** Expect dense central midfield congestion with high operational tracking metrics required on counter-attacks."""
-
-    elif "nba" in inp or "basketball" in inp:
-        return """### 🏀 Live Hoops Central Metrics
+        output = "### 📡 Live Match Center Feed\n\n"
+        live_count = 0
         
-* **League Update:** Current schedules are prioritizing defensive conversion rates against high-volume three-point shooting schemes.
-* **Roster Depth:** Back-to-back travel schedules are causing dynamic depth adjustments across conference alignments."""
-
-    else:
-        return """### 📋 NextPlay Omni-Sport Core
+        for m in matches:
+            # Look for active games
+            if m.get('status') in ['in_progress', 'live']:
+                live_count += 1
+                home = m['home_team']['name']
+                away = m['away_team']['name']
+                h_goals = m['home_team'].get('goals', 0)
+                a_goals = m['away_team'].get('goals', 0)
+                time_status = m.get('time', 'Live')
+                
+                output += f"""<div class='score-card'>
+                🟢 <b>{home} {h_goals} - {a_goals} {away}</b><br>
+                ⏱️ Status: {time_status} | Stage: {m.get('stage_name', 'Group Stage')}
+                </div>"""
+                
+        if live_count == 0:
+            output += "No games are live right this second. Here are the most recent match outcomes:\n\n"
+            # Fallback to display the latest completed results
+            for m in matches[-3:]:
+                output += f"🏁 **{m['home_team']['name']}** ({m['home_team'].get('goals', 0)}) vs **{m['away_team']['name']}** ({m['away_team'].get('goals', 0)}) - Final\n"
+                
+        return output
+    except Exception as e:
+        return """### ❌ Live Network Sync Error
         
-Operational layer is fully synchronized and key-free. Type your preferred sports query below to pull structural performance summaries.
-* **Supported Scans:** World Cup updates, league fixture matrices, and performance summaries."""
+The system could not parse the dynamic match data stream. 
+* **Fix:** Ensure your Streamlit container internet access loops are clear and refresh the page!"""
+
+def get_upcoming_schedule():
+    try:
+        url = "https://worldcupjson.net/matches"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=6) as response:
+            matches = json.loads(response.read().decode())
+            
+        output = "### 📅 Upcoming Fixture Matrix\n\n"
+        future_count = 0
+        
+        for m in matches:
+            if m.get('status') == 'future':
+                future_count += 1
+                home = m['home_team']['name']
+                away = m['away_team']['name']
+                date_str = m.get('datetime', '')[:10]
+                
+                output += f"🗓️ **{home} vs {away}**\n"
+                output += f"* Scheduled Date: `{date_str}`\n\n"
+                if future_count >= 5: # Limit list length
+                    break
+                    
+        if future_count == 0:
+            return "### 📅 Upcoming Fixture Matrix\n\nAll currently tracked rounds in this database block have been completed!"
+        return output
+    except Exception:
+        return "### 📅 Upcoming Schedule\n\nFixtures are refreshing dynamically. Check back in a few moments for calendar sync."
 
 # -------------------------
 # 5. INPUT FEED FIELD
 # -------------------------
 with st.form(key="nexus_input_form", clear_on_submit=True):
-    user_query = st.text_input("", placeholder="Ask about World Cup games, Liverpool vs Man City, or basketball...", label_visibility="collapsed")
+    user_query = st.text_input("", placeholder="Type 'live scores' or 'upcoming matches' to query raw web tracking feeds...", label_visibility="collapsed")
     submit_button = st.form_submit_button(label="⚡ SCAN LIVE SPORTS NETWORK", use_container_width=True)
 
+active_input = None
 if submit_button and user_query:
-    st.session_state.nexus_history.append({"role": "user", "content": user_query})
-    with st.spinner("Scanning open data networks..."):
-        ai_response = search_live_sports_feed(user_query)
+    active_input = user_query
+
+if active_input:
+    st.session_state.nexus_history.append({"role": "user", "content": active_input})
+    
+    # Process text queries natively against live scrapers
+    query_clean = active_input.lower()
+    if "live" in query_clean or "score" in query_clean:
+        ai_response = get_live_scores()
+    elif "upcoming" in query_clean or "match" in query_clean or "schedule" in query_clean:
+        ai_response = get_upcoming_schedule()
+    else:
+        ai_response = """### 🔍 Query Guide
+        
+To read raw live data instantly without API authorization barriers, use these precise triggers:
+1. Type **"live scores"** to get current scores or recent match outcomes.
+2. Type **"upcoming matches"** to view scheduled fixture calendars."""
+        
     st.session_state.nexus_history.append({"role": "ai", "content": ai_response})
     st.rerun()
 
