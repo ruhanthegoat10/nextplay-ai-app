@@ -1,9 +1,10 @@
 import streamlit as st
 import time
 import random
+import re
 
 # -------------------------
-# 1. ENTERPRISE GLASS-SaaS SCREEN CANVAS
+# 1. PREMIUM GLASSMISM CANVAS & STYLING
 # -------------------------
 st.set_page_config(
     page_title="NextPlay AI Nexus",
@@ -11,7 +12,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Premium Dark-Mode Generative Space Styling
+# Custom premium chat portal styling
 styles = [
     ".stApp { background: #030307; }",
     ".main-title { text-align: center; color: #ffffff; font-size: 3.2rem; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 5px; font-family: 'Inter', sans-serif; }",
@@ -19,18 +20,15 @@ styles = [
     ".chat-container { max-width: 800px; margin: 0 auto; padding: 10px; }",
     ".user-bubble { background: #16192b; border: 1px solid #2e3556; padding: 16px 20px; border-radius: 16px; color: #f1f5f9; font-size: 1.05rem; margin-bottom: 20px; margin-left: 10%; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }",
     ".ai-bubble { background: linear-gradient(135deg, #0d0e1a 0%, #121324 100%); border-left: 4px solid #a855f7; border-top: 1px solid #1e213d; border-right: 1px solid #1e213d; border-bottom: 1px solid #1e213d; padding: 22px; border-radius: 16px; color: #e2e8f0; font-size: 1.05rem; line-height: 1.65; margin-bottom: 20px; margin-right: 10%; }",
-    ".prompt-chip { background: #0c0d19; border: 1px solid #222543; color: #94a3b8; padding: 12px 16px; border-radius: 12px; cursor: pointer; text-align: left; font-size: 0.9rem; transition: all 0.2s; height: 100%; display: flex; align-items: center; }",
-    ".prompt-chip:hover { border-color: #a855f7; color: #ffffff; background: #111326; }",
     "div[data-testid='stForm'] { border: none !important; padding: 0 !important; background: transparent !important; }"
 ]
 st.markdown(f"<style>{' '.join(styles)}</style>", unsafe_allow_html=True)
 
-# Initialize Session Chat Memory History
 if "nexus_history" not in st.session_state:
     st.session_state.nexus_history = []
 
 # -------------------------
-# 2. BRAND VECTOR OVERLAY
+# 2. APP LOGO & HEADER
 # -------------------------
 st.markdown("""
 <div style="text-align: center; margin-top: 30px;">
@@ -45,11 +43,10 @@ st.markdown("<div class='main-title'>NEXTPLAY AI NEXUS</div>", unsafe_allow_html
 st.markdown("<div class='sub-title'>Omni-Sport Generative Cognitive Layer</div>", unsafe_allow_html=True)
 
 # -------------------------
-# 3. CONVERSATIONAL CENTRAL CORE
+# 3. CHAT CANVAS FEED
 # -------------------------
 st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
 
-# Render Chat History Elements
 for message in st.session_state.nexus_history:
     if message["role"] == "user":
         st.markdown(f"<div class='user-bubble'><b>You:</b> {message['content']}</div>", unsafe_allow_html=True)
@@ -57,82 +54,40 @@ for message in st.session_state.nexus_history:
         st.markdown(f"<div class='ai-bubble'>🔹 <b>NextPlay AI:</b><br><br>{message['content']}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# 4. INTELLIGENT SPORTS REASONING ENGINE
+# 4. HUMANIZED ANALYSIS ENGINE
 # -------------------------
 def run_cognitive_inference(user_input):
-    inp = user_input.lower()
+    inp = user_input.title()
     
-    # Context-aware intelligence response configurations
-    if "madrid" in inp or "barcelona" in inp or "soccer" in inp or "liverpool" in inp or "city" in inp:
-        narratives = [
-            "Analytical vector synthesis complete. My deep generative matrices indicate an tactical transition bottleneck in mid-tier defensive lines. If the high-pressing front three maintains a turnover rate above 14.2%, tactical overload favors an assertive offensive victory with a projected margin of 2.15 expected goals.",
-            "Processing scouting metrics... Counter-attacking transitions are heavily weighted by current squad travel fatigue coefficients. Expect structural spaces to open significantly along the left flank after the 65th-minute threshold, tilting winning probabilities toward tactical adjustments."
-        ]
-    elif "lakers" in inp or "celtics" in inp or "nba" in inp or "basketball" in inp:
-        narratives = [
-            "NBA predictive array compiled. Shot chart distribution algorithms track a heavy perimeter-reliance bias. If defensive rotations clear the paint and limit second-chance possession options, efficiency indexes shift significantly, tracking an estimated point differential spread of +6.5 points.",
-            "Analyzing offensive pacing metrics... Transition tempos indicate a hyper-efficient fast-break index. True shooting percentages are modeled to hit maximum vector limits during high-screen pick-and-roll cycles."
-        ]
-    elif "chiefs" in inp or "nfl" in inp or "football" in inp or "49ers" in inp:
-        narratives = [
-            "Gridiron telemetry engine online. Third-down completion percentages indicate a critical structural vulnerability against split-safety defensive shells. Generative simulation runs project passing windows tightening in red-zone parameters.",
-            "Parsing operational team scripts. Expected Points Added (EPA) models indicate a strong rushing efficiency curve if blocking arrays hold their assignments, forecasting a game-control index shift of 58% favorability."
-        ]
+    # Intelligently isolate team names from the text string
+    words = re.findall(r'\b[A-Z][a-zA-Z0-9_]+\b', inp)
+    ignore_list = ["Vs", "And", "What", "The", "Analyze", "Predict", "Score", "In", "Simulation", "Tactics", "Run", "Me", "Game", "Will", "Be"]
+    found_teams = [w for w in words if w not in ignore_list]
+    
+    t1 = found_teams[0] if len(found_teams) > 0 else "The Home Team"
+    t2 = found_teams[1] if len(found_teams) > 1 else "The Away Team"
+    
+    # Identify sport context
+    inp_lower = user_input.lower()
+    if any(x in inp_lower for x in ["nba", "basketball", "lakers", "celtics", "hoops", "warriors"]):
+        sport = "basketball"
+    elif any(x in inp_lower for x in ["nfl", "football", "chiefs", "49ers", "cowboys"]):
+        sport = "american_football"
     else:
-        # Universal context-free sport parser fallback
-        narratives = [
-            f"Parsing deep metrics for your requested matchup framework. Generative cross-variable telemetry streams show high structural variation. The tactical execution margin remains razor-thin, with analytical decision nodes indicating premium performance indexes across key transition units.",
-            f"Global sports analytics matrix evaluated. Roster depth arrays, form vectors, and tactical layout variables have been calculated. The generative outcome matrix charts a high-probability tactical edge toward disciplined defensive containment."
-        ]
-    
-    return random.choice(narratives)
+        sport = "soccer"
 
-# -------------------------
-# 5. USER CHAT INPUT ENVIRONMENT
-# -------------------------
-with st.form(key="nexus_input_form", clear_on_submit=True):
-    user_query = st.text_input("", placeholder="Ask me anything about any team or matchup (e.g., 'Analyze Real Madrid vs Man City' or 'Break down Lakers vs Celtics')...", label_visibility="collapsed")
-    submit_button = st.form_submit_button(label="⚡ SEND TO COGNITIVE CORE", use_container_width=True)
-
-# Handle Active Submission Threads
-active_input = None
-if submit_button and user_query:
-    active_input = user_query
-
-# -------------------------
-# 6. QUICK-ACTION SUGGESTION CHIPS
-# -------------------------
-st.markdown("<p style='color: #4b5563; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 25px; margin-bottom: 12px;'>Suggested AI Scenarios</p>", unsafe_allow_html=True)
-chip_col1, chip_col2, chip_col3 = st.columns(3)
-
-with chip_col1:
-    if st.button("⚽ Simulate Real Madrid vs Barcelona tactics", use_container_width=True):
-        active_input = "Simulate Real Madrid vs Barcelona tactics"
-with chip_col2:
-    if st.button("🏀 Run predictive spread on Celtics vs Lakers", use_container_width=True):
-        active_input = "Run predictive spread on Celtics vs Lakers"
-with chip_col3:
-    if st.button("🏈 Analyze Chiefs vs 49ers offensive index", use_container_width=True):
-        active_input = "Analyze Chiefs vs 49ers offensive index"
-
-# Processing Sequence if Input is Activated
-if active_input:
-    # Append User Input to state
-    st.session_state.nexus_history.append({"role": "user", "content": active_input})
-    
-    # Process generative response
-    ai_response = run_cognitive_inference(active_input)
-    
-    # Add to state tracking array
-    st.session_state.nexus_history.append({"role": "ai", "content": ai_response})
-    
-    # Force direct execution cycle refresh to cleanly paint the UI screen
-    st.rerun()
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# -------------------------
-# SYSTEM FOOTER
-# -------------------------
-st.markdown("<br><br><hr style='border-color: #121324;'>", unsafe_allow_html=True)
-st.caption("NextPlay AI Nexus • Version 14.0 Cognitive Interface • Chat Platform Sandbox Ecosystem")
+    # Human-like conversation responses
+    if sport == "basketball":
+        s1, s2 = random.randint(108, 124), random.randint(108, 124)
+        winner = t1 if s1 > s2 else t2
+        
+        breakdown = f"Honestly, this is going to come down to defensive adjustments on the perimeter. If **{t1}** can't clean up their pick-and-roll defense, **{t2}** is going to generate open three-point opportunities all night. Keep an eye on the third quarter—that's usually where the tactical shifts happen."
+        prediction = f"🔮 **Predicted Score:** {t1} **{s1} - {s2}** {t2}\n\n**Quick Verdict:** Expect a high-scoring battle, but **{winner}** will likely clutch it out in the final two minutes due to better execution in the clutch."
+        
+    elif sport == "american_football":
+        s1, s2 = random.randint(17, 34), random.randint(17, 34)
+        while s1 == s2: s1 = random.randint(17, 34) # Avoid football ties
+        winner = t1 if s1 > s2 else t2
+        
+        breakdown = f"This matchup looks like a total chess match. **{t1}** has a tough defensive front, but **{t2}** has the explosive playmakers to bypass them if they rely on quick passes. The game will ultimately be decided by whoever controls the line of scrimmage and avoids costly red-zone turnovers."
+        prediction = f"🔮 **Predicted Score:** {t1} **{s1} - {s2}** {t2}\n\n**Quick Verdict:** It's going to be a physical, grinding game, but I'm giving the edge to **{winner}** to
