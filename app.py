@@ -12,7 +12,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Unified, clean style injection block to avoid list token errors
+# Unified style injection block
 st.markdown("""
 <style>
     .stApp { 
@@ -104,106 +104,146 @@ for message in st.session_state.nexus_history:
         st.markdown(f"<div class='ai-bubble'>🔹 <b>NextPlay AI:</b><br><br>{message['content']}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# 4. HUMANIZED CURRENT EVENTS ROUTER
+# 4. ROBUST MULTI-SPORT COGNITIVE MATRIX
 # -------------------------
 def run_cognitive_inference(user_input):
     inp_lower = user_input.lower()
-    inp_title = user_input.title()
     
-    # Extract capitalized entities
-    words = re.findall(r'\b[A-Z][a-zA-Z0-9_]+\b', inp_title)
-    
-    # Massive text filter to block conversational question starters from breaking terms
-    ignore_list = [
-        "Vs", "And", "What", "The", "Analyze", "Predict", "Score", "In", 
-        "Simulation", "Tactics", "Run", "Me", "Game", "Will", "Be", 
-        "World", "Cup", "Transfer", "Sign", "Player", "Injury", "Injured",
-        "Is", "Are", "Was", "Were", "Does", "Do", "Did", "Can", "Could", 
-        "Should", "How", "Who", "Why", "When", "Where", "Playing", "Match", "Happening"
-    ]
-    
-    found_entities = [w for w in words if w not in ignore_list]
-    
-    t1 = found_entities[0] if len(found_entities) > 0 else "The Favorites"
-    t2 = found_entities[1] if len(found_entities) > 1 else "The Underdogs"
-    
-    if t1 == t2 and t1 != "The Favorites":
-        t2 = "their upcoming opponent"
+    # Intelligently clean up punctuation for keyword scanning
+    clean_input = re.sub(r'[^\w\s]', '', inp_lower)
+    words = clean_input.split()
 
-    # --- NODE A: TRANSFERS & SQUAD MARKETS ---
-    if any(x in inp_lower for x in ["transfer", "sign", "joined", "move to", "market"]):
-        player = found_entities[0] if len(found_entities) > 0 else "their key target"
-        team = found_entities[1] if len(found_entities) > 1 else "the new club"
-        
+    # Dynamic Entity Extractor with deep filtering list
+    ignore_words = {
+        "vs", "and", "what", "the", "analyze", "predict", "score", "in", "right", "now",
+        "simulation", "tactics", "run", "me", "game", "will", "be", "world", "cup", 
+        "transfer", "sign", "player", "injury", "injured", "is", "are", "was", "were", 
+        "does", "do", "did", "can", "could", "should", "how", "who", "why", "when", 
+        "where", "playing", "match", "happening", "today", "tonight", "this", "week", "about"
+    }
+    
+    # Extract candidate nouns/teams that aren't functional words
+    entities = [w.title() for w in words if w not in ignore_words]
+    
+    # Assign names safely based on what was parsed
+    t1 = entities[0] if len(entities) > 0 else "The Favorites"
+    t2 = entities[1] if len(entities) > 1 else "The Underdogs"
+    
+    # Unbreakable check: if regex breaks or extracts twin words, assign distinct labels
+    if t1 == t2:
+        if t1 == "The Favorites":
+            t2 = "The Underdogs"
+        else:
+            t2 = "Their Rivals"
+
+    # --- CATEGORY 1: TRANSFERS & MARKET ---
+    if any(x in inp_lower for x in ["transfer", "sign", "joined", "move to", "market", "rumor"]):
+        player = entities[0] if len(entities) > 0 else "Target Player"
+        destination = entities[1] if len(entities) > 1 else "Prospective Club"
         return f"""### 📰 Live Transfer Window Analysis
 
-This market move completely alters the squad blueprint. If **{player}** officially slots into **{team}**, it resolves an immediate tactical puzzle regarding final-third efficiency. 
+This market move completely alters the squad blueprint. If **{player}** officially seals a move to **{destination}**, it resolves an immediate structural puzzle regarding depth and technical flexibility.
 
-From an analytical standpoint, it’s a massive offensive upgrade. However, it means the coaching staff will have to modify their defensive pressing lines to preserve team balance. If they adapt quickly, their tactical ceiling points straight toward silverware next season."""
+From an analytical standpoint, it’s a massive functional upgrade. However, it means the coaching staff will have to modify their baseline tactical systems to preserve team balance. If the pieces fall into place, their project shifts directly into title-contender status."""
 
-    # --- NODE B: WORLD CUP & TOURNAMENTS ---
-    elif any(x in inp_lower for x in ["world cup", "cup", "euro", "copa", "national"]):
+    # --- CATEGORY 2: INJURIES & SQUAD DELETIONS ---
+    elif any(x in inp_lower for x in ["injury", "injured", "out for", "torn", "hamstring", "acl", "status"]):
+        key_player = entities[0] if len(entities) > 0 else "Key Starter"
+        return f"""### 🏥 Injury Impact Scouting Report
+
+Losing **{key_player}** sends immediate structural adjustments through the entire tactical layout. As a foundational piece of their transition sequences, losing this asset means the current system risks looking a bit too static going forward.
+
+Expect the managerial staff to rely heavily on a compact defensive shape to shelter the backline while they wait for reinforcements to return from the medical room."""
+
+    # --- CATEGORY 3: INTERNATIONAL TOURNAMENTS (WORLD CUP / COPA / EURO) ---
+    elif any(x in inp_lower for x in ["world cup", "cup", "euro", "copa", "international"]):
         s1, s2 = random.randint(0, 3), random.randint(0, 3)
         winner = "Draw" if s1 == s2 else (t1 if s1 > s2 else t2)
+        verdict = f"**{winner}** possesses cleaner structural flexibility in mid-tournament formats, giving them the ultimate nod." if winner != "Draw" else "Both national sides display elite positional awareness. Expect a tight tactical block battle ending in a stalemate."
         
-        if winner == "Draw":
-            verdict_text = "Both national squads possess elite tactical structures. Expect a cagey, high-stakes tournament match where neither side leaves enough space behind, likely ending in a calculated stalemate."
-        else:
-            verdict_text = f"International fixtures are completely unforgiving, but **{winner}** looks significantly more prepared to exploit transitions in the final twenty minutes."
-        
-        return f"""### 🏆 World Cup Tournament Scouting Report: {t1} vs {t2}
+        return f"""### 🏆 Tournament Scouting Layer: {t1} vs {t2}
 
-International tournament football is an entirely different beast compared to standard club play. There is absolutely zero margin for error under the bright lights of the World Cup stage. 
+International knockout football represents a unique competitive challenge. With tight schedules and absolute focus on single-elimination stakes, mistakes are magnified instantly under the global spotlight.
 
 ---
 
-🔮 **Predicted Group Score:** {t1} **{s1} - {s2}** {t2}
-**Tournament Verdict:** {verdict_text}"""
+🔮 **Projected Scoreline:** {t1} **{s1} - {s2}** {t2}
+**Tournament Verdict:** {verdict}"""
 
-    # --- NODE C: INJURY & LINEUP DISRUPTIONS ---
-    elif any(x in inp_lower for x in ["injury", "injured", "out for", "torn", "hamstring"]):
-        key_player = found_entities[0] if len(found_entities) > 0 else "their star playmaker"
-        
-        return f"""### 🏥 Injury Impact Report
-
-Losing **{key_player}** sends immediate shockwaves through the tactical setup. He serves as the primary engine for transition sequences, and without his progressive distribution, the buildup play runs the risk of looking entirely too predictable.
-
-Expect the manager to adapt by executing a much more conservative shape to shelter the defensive lines. It's a huge test of squad depth."""
-
-    # --- NODE D: BASKETBALL / NBA ---
-    elif any(x in inp_lower for x in ["nba", "basketball", "lakers", "celtics", "hoops", "warriors"]):
-        s1, s2 = random.randint(104, 122), random.randint(104, 122)
+    # --- CATEGORY 4: BASKETBALL (NBA / COLLEGE) ---
+    elif any(x in inp_lower for x in ["nba", "basketball", "hoops", "lakers", "celtics", "warriors", "nuggets"]):
+        s1, s2 = random.randint(102, 124), random.randint(102, 124)
         winner = t1 if s1 > s2 else t2
-        
-        return f"""### 🏀 Hoops Deep-Dive: {t1} vs {t2}
+        return f"""### 🏀 Elite Hoops Analytics: {t1} vs {t2}
 
-This game is going to be dictated strictly out on the perimeter. If **{t1}** fails to fight over screens and close out effectively, **{t2}** is going to punish them with high-percentage looks all night long. 
+This matchup will dictate itself purely along perimeter defense and secondary shot creation. If **{t1}** struggles to limit clean catch-and-shoot packages from deep, **{t2}** will simply stretch the floor and control the tempo.
 
 ---
 
-🔮 **Predicted Score:** {t1} **{s1} - {s2}** {t2}
-**Quick Verdict:** A pure matchup of adjustments, but **{winner}** edges it out due to depth in secondary shot creation during crunch time."""
+🔮 **Simulated Score:** {t1} **{s1} - {s2}** {t2}
+**Analytical Verdict:** Expect a heavy run-and-gun affair, but **{winner}** edges execution out inside the final two minutes."""
 
-    # --- NODE E: STANDARD CLUB MATCHUP FALLBACK ---
+    # --- CATEGORY 5: AMERICAN FOOTBALL (NFL / NCAAF) ---
+    elif any(x in inp_lower for x in ["nfl", "football", "super bowl", "touchdown", "quarterback", "chiefs"]):
+        s1, s2 = random.choice([17, 20, 24, 27, 31]), random.choice([14, 21, 24, 28, 35])
+        winner = t1 if s1 > s2 else t2
+        return f"""### 🏈 Gridiron Tactical Breakdown: {t1} vs {t2}
+
+Victory here is completely contingent upon line-of-scrimmage control and forcing early safety commitments. If **{t1}** establishes their zone-run scheme efficiently, it will open up deep play-action avenues over the middle against **{t2}**'s standard sub-packages.
+
+---
+
+🔮 **Simulated Gridiron Score:** {t1} **{s1} - {s2}** {t2}
+**Analytical Verdict:** A pure war of trenches, but **{winner}** features the defensive discipline needed to secure crucial turnovers."""
+
+    # --- CATEGORY 6: BASEBALL (MLB) ---
+    elif any(x in inp_lower for x in ["mlb", "baseball", "yankees", "dodgers", "innings", "pitcher"]):
+        s1, s2 = random.randint(2, 8), random.randint(2, 8)
+        if s1 == s2: s1 += 1 # Avoid baseball ties
+        winner = t1 if s1 > s2 else t2
+        return f"""### ⚾ Diamond Metrics & Analytics: {t1} vs {t2}
+
+This matchup settles entirely on starting rotation durability and bullpen match-ups through the middle frames. If **{t2}** struggles to pick up breaking balls early in the count, expect **{t1}**'s top-of-the-order hitters to apply pressure quickly on the basepaths.
+
+---
+
+🔮 **Simulated MLB Line Score:** {t1} **{s1} - {s2}** {t2}
+**Analytical Verdict:** Pitching changes will tell the story, but **{winner}** holds the run-differential advantage here."""
+
+    # --- CATEGORY 7: HOCKEY (NHL) ---
+    elif any(x in inp_lower for x in ["nhl", "hockey", "crease", "puck", "skate"]):
+        s1, s2 = random.randint(1, 5), random.randint(1, 5)
+        if s1 == s2: s1 += 1
+        winner = t1 if s1 > s2 else t2
+        return f"""### 🏒 Ice Level Performance Matrix: {t1} vs {t2}
+
+Power play conversion rates and neutral zone turnovers are going to define the pace of this match. If **{t1}** can establish a heavy forecheck and crowd the blue line, they'll choke out **{t2}**'s transition lanes before they ever reach the attacking zone.
+
+---
+
+🔮 **Projected Final:** {t1} **{s1} - {s2}** {t2}
+**Analytical Verdict:** High physical velocity expected, with **{winner}** converting late on an advantage window."""
+
+    # --- CATEGORY 8: GENERAL SPORT / SOCCER FALLBACK ---
     else:
         s1, s2 = random.randint(0, 3), random.randint(0, 3)
         winner = "Draw" if s1 == s2 else (t1 if s1 > s2 else t2)
-        verdict = f"**{winner}** looks slightly cleaner in mid-week fitness loops, which should provide the winning edge." if winner != "Draw" else "These clubs match up evenly on current form. A high-stakes draw feels highly realistic."
+        verdict = f"**{winner}** displays sharper collective performance loops right now, providing the winning margin." if winner != "Draw" else "These operations mirror each other structural-wise. A balanced drawn match feels inevitable."
         
-        return f"""### 📋 Tactical Scouting: {t1} vs {t2}
+        return f"""### 📋 General Performance Summary: {t1} vs {t2}
 
-An incredibly close tactical matchup on paper. **{t1}** will aim to dominate spatial possession and construct phases cleanly from the back, but that inevitably leaves open counter-attacking corridors out wide for **{t2}** to exploit with vertical speed.
+An extremely close operational matchup on paper. One side will seek to establish possession hegemony and build sequences progressively from deep layout positions, while the other looks to maximize vertical counters into wide channels.
 
 ---
 
-🔮 **Predicted Score:** {t1} **{s1} - {s2}** {t2}
+🔮 **Simulated Output:** {t1} **{s1} - {s2}** {t2}
 **Quick Verdict:** {verdict}"""
 
 # -------------------------
 # 5. CONVERSATIONAL FIELD INPUT
 # -------------------------
 with st.form(key="nexus_input_form", clear_on_submit=True):
-    user_query = st.text_input("", placeholder="Ask anything! Matchups, World Cup games, or player transfers...", label_visibility="collapsed")
+    user_query = st.text_input("", placeholder="Ask anything! NFL games, NBA, World Cup updates, or transfers...", label_visibility="collapsed")
     submit_button = st.form_submit_button(label="⚡ SEND TO COGNITIVE CORE", use_container_width=True)
 
 # Modern UI Suggestion Tags
@@ -216,11 +256,11 @@ with chip_col1:
     if st.button("🏆 Predict England vs Croatia in the World Cup", use_container_width=True):
         active_input = "Predict England vs Croatia in the World Cup"
 with chip_col2:
-    if st.button("🔄 Analyze Julian Alvarez transfer to Arsenal", use_container_width=True):
-        active_input = "Analyze Julian Alvarez transfer to Arsenal"
+    if st.button("🏈 Simulate Chiefs vs 49ers tactics", use_container_width=True):
+        active_input = "Simulate Chiefs vs 49ers tactics"
 with chip_col3:
-    if st.button("🏥 Check the impact of recent squad injuries", use_container_width=True):
-        active_input = "Check the impact of recent squad injuries"
+    if st.button("🔄 Analyze potential blockbuster transfer updates", use_container_width=True):
+        active_input = "Analyze potential blockbuster transfer updates"
 
 if submit_button and user_query:
     active_input = user_query
@@ -238,4 +278,4 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 # Footer
 st.markdown("<br><br><hr style='border-color: #121324;'>", unsafe_allow_html=True)
-st.caption("NextPlay AI Nexus • Version 16.0 Clean Styling Matrix")
+st.caption("NextPlay AI Nexus • Version 17.0 Universal Sports Intelligence Stack")
