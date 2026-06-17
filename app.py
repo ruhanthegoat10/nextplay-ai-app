@@ -113,30 +113,29 @@ for message in st.session_state.nexus_history:
 # 5. GENERATIVE PSEUDO-LLM RESPONSE CORE
 # -------------------------
 def generate_conversational_sports_quote(user_text):
-    # This acts as an offline, key-free heuristic text engine. It hashes the string to select 
-    # dynamic, smart combinations of responses so it feels like an actual chat assistant.
     subjects = ["tactical baseline", "offensive distribution index", "defensive shape rotation", "transitional matrix acceleration"]
     verbs = ["re-aligns premium roster assets against", "neutralizes high-volume threat channels inside", "optimizes efficiency tracking variables for", "outpaces legacy tactical formations facing"]
     trends = ["high-pressing counter-attack thresholds.", "advanced floor-spacing layouts.", "split-safety defensive coverages.", "under-lapping full-back configurations."]
     
-    # Generate seed based on sentence characters to ensure identical entries produce persistent answers
     seed = int(hashlib.md5(user_text.encode('utf-8')).hexdigest(), 16)
     random.seed(seed)
     
     sub = random.choice(subjects)
     vrb = random.choice(verbs)
     trnd = random.choice(trends)
+    rating = round(random.uniform(1.1, 1.9), 2)
     
-    return f"""### 🧠 NextPlay Cognitive Synthesis Analysis
+    # Using a raw string r""" here stops any backslash-t syntax escape problems dead in their tracks!
+    return r"""### 🧠 NextPlay Cognitive Synthesis Analysis
     
-*"Analyzing your strategic inquiry regarding: '{user_text}'..."*
+*"Analyzing your strategic inquiry regarding: '{0}'..."*
 
-Our live intelligence tracking platform notes that the current **{sub}** dynamically **{vrb}** modern **{trnd}** 📊 **Advanced Performance Index:**
-* **Synergy Index Rating:** $\sigma_{\text{index}} = {round(random.uniform(1.1, 1.9), 2)}$
+Our live intelligence tracking platform notes that the current **{1}** dynamically **{2}** modern **{3}** 📊 **Advanced Performance Index:**
+* **Synergy Index Rating:** $\sigma = {4}$
 * **Tactical Conversion Efficiency:** $94.6\%$
 * **Scouting Consensus Vector:** Highly volatile upper-tier roster depth allocation recommended.
 
-*Type 'MLB', 'NBA', 'Formula 1', 'Predict', or 'Scout' to view deep-dive targeted data feeds!*"""
+*Type 'MLB', 'NBA', 'Formula 1', 'Predict', or 'Scout' to view deep-dive targeted data feeds!*""".format(user_text, sub, vrb, trnd, rating)
 
 # -------------------------
 # 6. MASTER DATA FEED LAYER
@@ -145,7 +144,7 @@ def process_sports_query(user_input):
     inp = user_input.lower()
     
     if "predict" in inp or "probability" in inp or "odds" in inp:
-        return """### 🔮 Quantum Predictive Projections Engine
+        return r"""### 🔮 Quantum Predictive Projections Engine
 
 <div class='score-card'>
 <span class='badge badge-alert'>📈 WIN PROBABILITY MARGINS</span><br>
@@ -162,13 +161,13 @@ def process_sports_query(user_input):
 </div>"""
 
     elif "scout" in inp or "fantasy" in inp or "stats" in inp:
-        return """### 📊 Fantasy Metrics & Waiver Scout Panels
+        return r"""### 📊 Fantasy Metrics & Waiver Scout Panels
 
 <div class='score-card'>
 <span class='badge badge-scheduled'>💎 HIGH-VALUE WAIVER TARGET</span><br>
 🏀 **Advanced Floor-Spacing Index Formulas**<br>
 * **Efficiency Indicator:** Effective Field Goal Percentage metric calculated as:
-$$eFG\% = \\frac{\\text{Field Goals Made} + 0.5 \\times \\text{3PM}}{\\text{Field Goal Attempts}}$$
+$$eFG\% = \frac{\text{Field Goals Made} + 0.5 \times \text{3PM}}{\text{Field Goal Attempts}}$$
 * **Scout Verdict:** Roster additions flashing an $eFG\% > 58.5\%$ in transition sets are highly prioritized.
 </div>"""
 
@@ -229,7 +228,6 @@ $$eFG\% = \\frac{\\text{Field Goals Made} + 0.5 \\times \\text{3PM}}{\\text{Fiel
 </div>"""
 
     else:
-        # Fall back to our smart offline linguistic converter so conversational messages always output something awesome
         return generate_conversational_sports_quote(user_input)
 
 # -------------------------
