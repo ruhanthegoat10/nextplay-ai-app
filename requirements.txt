@@ -1,9 +1,2 @@
 streamlit
-
-requests
-
-scikit-learn
-
-numpy
-
-joblib
+google-genai
