@@ -54,50 +54,128 @@ for message in st.session_state.nexus_history:
         st.markdown(f"<div class='ai-bubble'>🔹 <b>NextPlay AI:</b><br><br>{message['content']}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# 4. CURRENT EVENTS & CONTEXT INTELLIGENCE ROUTER
+# 4. HUMANIZED ANALYSIS ENGINE (CURRENT EVENTS ROUTER)
 # -------------------------
 def run_cognitive_inference(user_input):
     inp_lower = user_input.lower()
     inp_title = user_input.title()
     
-    # Isolate capitalized team/player terms out of text strings
+    # Isolate entity names smoothly using regex
     words = re.findall(r'\b[A-Z][a-zA-Z0-9_]+\b', inp_title)
-    ignore_list = ["Vs", "And", "What", "The", "Analyze", "Predict", "Score", "In", "Simulation", "Tactics", "Run", "Me", "Game", "Will", "Be", "World", "Cup", "Transfer", "Sign", "Player"]
+    ignore_list = ["Vs", "And", "What", "The", "Analyze", "Predict", "Score", "In", "Simulation", "Tactics", "Run", "Me", "Game", "Will", "Be", "World", "Cup", "Transfer", "Sign", "Player", "Injury", "Injured"]
     found_entities = [w for w in words if w not in ignore_list]
     
     t1 = found_entities[0] if len(found_entities) > 0 else "The Favorites"
     t2 = found_entities[1] if len(found_entities) > 1 else "The Underdogs"
 
-    # --- ROUTER NODE 1: TRANSFERS / RECENT SIGNINGS ---
-    if "transfer" in inp_lower or "sign" in inp_lower or "joined" in inp_lower:
-        player_name = found_entities[0] if len(found_entities) > 0 else "their new marquee signing"
-        destination_team = found_entities[1] if len(found_entities) > 1 else "their squad"
+    # --- NODE A: TRANSFERS & SQUAD MOVEMENTS ---
+    if "transfer" in inp_lower or "sign" in inp_lower or "joined" in inp_lower or "move to" in inp_lower:
+        player = found_entities[0] if len(found_entities) > 0 else "their target player"
+        team = found_entities[1] if len(found_entities) > 1 else "the club"
         
-        breakdown = f"""This transfer completely shifts the competitive landscape. Integrating **{player_name}** into **{destination_team}** changes how they will approach their transition play. Structurally, it relieves pressure from their primary creators, but it poses immediate chemistry questions. 
-        
-        Historically, introducing a high-profile asset mid-cycle temporarily compromises defensive pressing structures while tactical adjustments are finalized, but their offensive expected ceiling just spiked dramatically."""
-        
-        prediction = f"""🔄 **Roster Update Verdict:** If **{player_name}** is deployed in a fluid, advanced position rather than a rigid central channel, expect **{destination_team}**'s offensive output efficiency to increase by an estimated 15-20% over their upcoming matches."""
-        
-        return f"### 📰 Real-Time Transfer Impact Analysis\n\n{breakdown}\n\n---\n\n{prediction}"
+        response = f"""### 📰 Real-Time Transfer Strategy Analysis
 
-    # --- ROUTER NODE 2: INTERNATIONAL TOURNAMENTS (WORLD CUP / EUROS) ---
-    elif "world cup" in inp_lower or "cup" in inp_lower or "national" in inp_lower:
+This move completely reshapes the tactical layout. If **{player}** officially slots into **{team}**, it solves an immediate problem for them in terms of creation efficiency. 
+
+From a tactical perspective, it's a huge upgrade, but it means their manager will have to shift their current pressing system to accommodate his defensive work rate. If they pull it off, their offensive ceiling goes up significantly for next season, making them direct title contenders."""
+        return response
+
+    # --- NODE B: WORLD CUP / TOURNAMENTS ---
+    elif "world cup" in inp_lower or "cup" in inp_lower or "euro" in inp_lower or "copa" in inp_lower:
         s1, s2 = random.randint(0, 3), random.randint(0, 3)
         winner = "Draw" if s1 == s2 else (t1 if s1 > s2 else t2)
         
-        breakdown = f"""International tournament football hits entirely different than league play. In a tournament setting like the World Cup, **{t1}** and **{t2}** don't have the luxury of season-long error margins. **{t1}** will likely run a highly protective mid-block to mitigate individual fatigue, whereas **{t2}** will rely on set-pieces and vertical transitions to force mistakes."""
+        verdict_text = f"Given the high stakes of tournament knockout pressure, expect a very cagey match. But I see **{winner}** unlocking the defense late in the second half." if winner != "Draw" else "Both national squads are defensively elite. Expect a long, tactical chess match that likely heads to extra time or a draw in group stages."
         
-        if winner == "Draw":
-            verdict_text = "Given the high stakes of knockout or group stage pressure, expect both teams to play it safe. A calculated draw feels highly realistic."
-        else:
-            verdict_text = f"The depth of **{winner}**'s bench will likely break the game wide open in the final 20 minutes under tournament fatigue."
-            
-        prediction = f"""🏆 **World Cup Predicted Score:** {t1} **{s1} - {s2}** {t2}
+        response = f"""### 🏆 International Tournament Analysis: {t1} vs {t2}
 
+Tournament football is a completely different beast than club football. There’s zero room for error, especially on the big stage like the World Cup. **{t1}** has the tournament experience, but **{t2}** brings insane high-intensity energy that can catch organized backlines off guard. 
+
+---
+
+🔮 **Predicted Final Score:** {t1} **{s1} - {s2}** {t2}
 **Tournament Verdict:** {verdict_text}"""
-        
-        return f"### 🌍 International Tournament Vector: {t1} vs {t2}\n\n{breakdown}\n\n---\n\n{prediction}"
+        return response
 
-    # --- ROUTER NODE 3: NBA / BASKETBALL ---
-    elif any(x in inp_lower for x in
+    # --- NODE C: INJURIES & SQUAD UPDATES ---
+    elif "injury" in inp_lower or "injured" in inp_lower or "out for" in inp_lower:
+        key_player = found_entities[0] if len(found_entities) > 0 else "their star player"
+        
+        response = f"""### 🏥 Injury Impact Scouting Report
+
+Losing **{key_player}** changes everything for this upcoming stretch. He's the focal point of transition play, so without him, the team is going to look much more predictable going forward. 
+
+Expect the coaching staff to play a more conservative mid-block to shield the defense until he returns. Other players will get their chance to step up, but their overall fluidity takes a massive hit here."""
+        return response
+
+    # --- NODE D: STANDARD BASKETBALL ---
+    elif any(x in inp_lower for x in ["nba", "basketball", "lakers", "celtics", "hoops", "warriors", "nuggets"]):
+        s1, s2 = random.randint(104, 122), random.randint(104, 122)
+        winner = t1 if s1 > s2 else t2
+        
+        response = f"""### 🏀 Match Analysis: {t1} vs {t2}
+
+This one is going to be won or lost beyond the arc. If **{t1}** can't contain the pick-and-roll switches, **{t2}** will just generate open look after open look. Watch out for secondary fast breaks—whoever controls the glass and limits turnovers wins the night.
+
+---
+
+🔮 **Predicted Score:** {t1} **{s1} - {s2}** {t2}
+**Quick Verdict:** Expect a close game, but **{winner}** clutches it with better free-throw execution in crunch time."""
+        return response
+
+    # --- NODE E: STANDARD SOCCER / GENERAL FALLBACK ---
+    else:
+        s1, s2 = random.randint(0, 3), random.randint(0, 3)
+        winner = "Draw" if s1 == s2 else (t1 if s1 > s2 else t2)
+        verdict = f"**{winner}** looks slightly more balanced in mid-week form, giving them the edge." if winner != "Draw" else "Both teams match up too closely right now. A high-scoring draw feels highly probable."
+        
+        response = f"""### 📋 Match Analysis: {t1} vs {t2}
+
+This is a massive tactical matchup. **{t1}** is going to want to dictate the tempo and build slowly from the back, but that opens up giant structural windows for **{t2}** to exploit on quick, direct counter-attacks out wide. 
+
+---
+
+🔮 **Predicted Score:** {t1} **{s1} - {s2}** {t2}
+**Quick Verdict:** {verdict}"""
+        return response
+
+# -------------------------
+# 5. CONVERSATIONAL FIELD INPUT
+# -------------------------
+with st.form(key="nexus_input_form", clear_on_submit=True):
+    user_query = st.text_input("", placeholder="Ask anything! 'Mbappe transfer to Real Madrid', 'World Cup match', or injuries...", label_visibility="collapsed")
+    submit_button = st.form_submit_button(label="⚡ SEND TO COGNITIVE CORE", use_container_width=True)
+
+# Modern UI Suggestion Tags
+st.markdown("<p style='color: #4b5563; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 25px; margin-bottom: 12px;'>Suggested Prompts</p>", unsafe_allow_html=True)
+chip_col1, chip_col2, chip_col3 = st.columns(3)
+
+active_input = None
+
+with chip_col1:
+    if st.button("🏆 Predict Argentina vs Portugal in the World Cup", use_container_width=True):
+        active_input = "Predict Argentina vs Portugal in the World Cup"
+with chip_col2:
+    if st.button("🔄 Analyze Haaland transferring to Real Madrid", use_container_width=True):
+        active_input = "Analyze Haaland transferring to Real Madrid"
+with chip_col3:
+    if st.button("🏥 Analyze how the injury affects the team", use_container_width=True):
+        active_input = "Analyze how the injury affects the team"
+
+if submit_button and user_query:
+    active_input = user_query
+
+# -------------------------
+# 6. INSTANTANEOUS SESSION REFRESH
+# -------------------------
+if active_input:
+    st.session_state.nexus_history.append({"role": "user", "content": active_input})
+    ai_response = run_cognitive_inference(active_input)
+    st.session_state.nexus_history.append({"role": "ai", "content": ai_response})
+    st.rerun()
+
+st.markdown("</div>", unsafe_allow_html=True)
+
+# Footer
+st.markdown("<br><br><hr style='border-color: #121324;'>", unsafe_allow_html=True)
+st.caption("NextPlay AI Nexus • Version 15.2 Contextual Event Processing Hub")
