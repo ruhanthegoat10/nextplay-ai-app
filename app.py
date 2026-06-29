@@ -1,9 +1,5 @@
 import streamlit as st
-import numpy as np
-import random
-import hashlib
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
+from groq import Groq
 
 # -------------------------
 # 1. PREMIUM GLASSMORPHISM CANVAS & STYLING
@@ -40,26 +36,6 @@ st.markdown("""
         padding: 22px; border-radius: 16px; color: #e2e8f0; 
         font-size: 1.05rem; line-height: 1.65; margin-bottom: 20px; margin-right: 10%; 
     }
-    .score-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(168, 85, 247, 0.15);
-        border-radius: 12px;
-        padding: 18px;
-        margin-bottom: 15px;
-    }
-    .badge {
-        display: inline-block;
-        padding: 3px 9px;
-        border-radius: 5px;
-        font-size: 0.75rem;
-        font-weight: bold;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-    }
-    .badge-live { background: #ef4444; color: white; }
-    .badge-final { background: #3b82f6; color: white; }
-    .badge-scheduled { background: #10b981; color: white; }
-    .badge-alert { background: #f59e0b; color: white; }
     div[data-testid='stForm'] { border: none !important; padding: 0 !important; background: transparent !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -67,34 +43,14 @@ st.markdown("""
 if "nexus_history" not in st.session_state:
     st.session_state.nexus_history = []
 
-# -------------------------
-# 2. EMBEDDED MACHINE LEARNING MODEL TRAINER
-# -------------------------
-@st.cache_resource
-def train_native_sports_classifier():
-    # Training datasets mapped out for the ML engine to identify intent
-    training_phrases = [
-        "what is happening in the world cup", "soccer scores live matches", "portugal vs dr congo game score",
-        "mlb baseball update scoreboards today", "yankees phillies runs baseball game", "who won the baseball match",
-        "formula 1 race standings driver rankings", "f1 tracks aero downforce points", "max verstappen leclerc mclaren ferrari",
-        "predict next match outcome win probability odds", "run advanced analysis forecasting percentages projections", "over under total margin prediction",
-        "fantasy scout waiver wire report player metrics", "efg field goal points per efficiency analysis nba stats", "injury monitoring spacing lineup tracking tools"
-    ]
-    # Classes: 0=WorldCup, 1=MLB, 2=F1, 3=Predictor, 4=FantasyScout
-    labels = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]
-    
-    vectorizer = TfidfVectorizer(stop_words='english')
-    X = vectorizer.fit_transform(training_phrases)
-    
-    classifier = LogisticRegression()
-    classifier.fit(X, labels)
-    
-    return vectorizer, classifier
-
-vectorizer, classifier = train_native_sports_classifier()
+# Initialize True Groq Client from Streamlit App Secrets
+if "GROQ_API_KEY" in st.secrets:
+    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+else:
+    client = None
 
 # -------------------------
-# 3. INTERACTIVE VISUAL CORE
+# 2. DESIGN APP HEADER
 # -------------------------
 st.markdown("""
 <div style="text-align: center; margin-top: 30px;">
@@ -106,131 +62,91 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 st.markdown("<div class='main-title'>NEXTPLAY AI NEXUS</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub-title'>Self-Contained ML Predictive Core Architecture</div>", unsafe_allow_html=True)
+st.markdown("<div class='sub-title'>Live Open-Access AI Language Matrix</div>", unsafe_allow_html=True)
 
-# Navigation Quick Chips
+# -------------------------
+# 3. INTERACTIVE NAVIGATION CHIPS
+# -------------------------
 st.markdown("<div style='max-width: 800px; margin: 0 auto 20px auto;'>", unsafe_allow_html=True)
 c1, c2, c3, c4, c5 = st.columns(5)
 quick_query = None
 
 with c1:
-    if st.button("🏆 World Cup", use_container_width=True): quick_query = "world cup matches soccer tracking"
+    if st.button("🏆 World Cup", use_container_width=True): quick_query = "Give me a breakdown of recent historic matches, metrics, and tactical storylines surrounding the FIFA World Cup."
 with c2:
-    if st.button("⚾ MLB Board", use_container_width=True): quick_query = "mlb baseball match highlights scores"
+    if st.button("⚾ MLB Board", use_container_width=True): quick_query = "Analyze the current MLB landscape, division standouts, and team dynamics."
 with c3:
-    if st.button("🏎️ Formula 1", use_container_width=True): quick_query = "formula 1 standings max verstappen race"
+    if st.button("🏎️ Formula 1", use_container_width=True): quick_query = "Provide tactical driver notes and race strategies for the top teams in Formula 1."
 with c4:
-    if st.button("🔮 Predictor", use_container_width=True): quick_query = "predict match outcome statistics probabilities"
+    if st.button("🔮 Predictor", use_container_width=True): quick_query = "Simulate an analytical sports prediction scenario for a high profile match including win probabilities."
 with c5:
-    if st.button("📊 Fantasy Scout", use_container_width=True): quick_query = "fantasy scout waiver wire analytics efg player metric"
+    if st.button("📊 Fantasy Scout", use_container_width=True): quick_width = True; quick_query = "Show advanced math performance indexes or target trends for a sports fantasy roster selection."
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Render Chat Feed Logs
+# -------------------------
+# 4. LIVE CHAT CANVAS FEED
+# -------------------------
 st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+
 for message in st.session_state.nexus_history:
     if message["role"] == "user":
         st.markdown(f"<div class='user-bubble'><b>You:</b> {message['content']}</div>", unsafe_allow_html=True)
     else:
-        st.markdown(f"<div class='ai-bubble'>🔹 {message['content']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='ai-bubble'>🔹 <b>NextPlay AI:</b><br><br>{message['content']}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# 4. RUN INFERENCE CORRELATION PIPELINE
+# 5. LIVE GENERATIVE INFERENCE LOGIC
 # -------------------------
-def run_matrix_inference(user_text):
-    # Vectorize input text vector on the fly
-    features = vectorizer.transform([user_text.lower()])
-    prediction_class = classifier.predict(features)[0]
-    probabilities = classifier.predict_proba(features)[0]
-    confidence = round(float(np.max(probabilities)) * 100, 1)
-    
-    # Generate persistent math properties using input hash string structures
-    seed = int(hashlib.md5(user_text.encode('utf-8')).hexdigest(), 16)
-    random.seed(seed)
-    
-    # OUTPUT ARCHITECTURE BASED ON ML INFERENCE INTENT
-    if prediction_class == 0:
-        return r"""**NextPlay Core Engine:** (ML Intent Match: *World Cup Center* | Confidence: {0}%)
-
-### 🏆 World Cup 2026 Live Match Center (June 17, 2026)
-
-<div class='score-card'>
-<span class='badge badge-final'>🏁 FINAL OUTCOME</span><br>
-⚽ <b>Portugal 1 - 1 DR Congo</b> (Group K)<br>
-⏱️ Venue: Houston Stadium, Texas
-</div>
-
-<div class='score-card'>
-<span class='badge badge-scheduled'>⏳ KICKING OFF SOON</span><br>
-⚽ <b>England vs Croatia</b> (Group L)<br>
-⏱️ Time: 4:00 PM ET / 1:00 PM PT | Venue: Dallas Stadium, Texas
-</div>""".format(confidence)
-
-    elif prediction_class == 1:
-        return r"""**NextPlay Core Engine:** (ML Intent Match: *MLB Matrix* | Confidence: {0}%)
-
-### ⚾ MLB Real-Time Scoreboards (June 17, 2026)
-
-<div class='score-card'>
-<span class='badge badge-final'>🏁 FINAL</span><br>
-🔥 <b>Miami Marlins 12 - 4 Philadelphia Phillies</b><br>
-⏱️ Game Complete | Venue: Citizens Bank Park, Pennsylvania
-</div>
-
-<div class='score-card'>
-<span class='badge badge-live'>🟢 IN PROGRESS (7th Inning)</span><br>
-🔥 <b>Houston Astros 4 - 1 Detroit Tigers</b><br>
-⏱️ Live Broadcast | Venue: Daikin Park, Texas
-</div>""".format(confidence)
-
-    elif prediction_class == 2:
-        return r"""**NextPlay Core Engine:** (ML Intent Match: *Formula 1 Analytics* | Confidence: {0}%)
-
-### 🏎️ Formula 1 Championship Leaderboards (2026)
-
-<div class='score-card'>
-<span class='badge badge-live'>🟢 SEASON STANDINGS ACTIVE</span><br>
-🏁 <b>1. Max Verstappen (Red Bull Racing)</b> — 184 pts<br>
-🏁 <b>2. Charles Leclerc (Ferrari)</b> — 156 pts<br>
-🏁 <b>3. Lando Norris (McLaren)</b> — 142 pts
-</div>""".format(confidence)
-
-    elif prediction_class == 3:
-        return r"""**NextPlay Core Engine:** (ML Intent Match: *Quantum Projections Engine* | Confidence: {0}%)
-
-### 🔮 Quantum Predictive Projections Engine
-
-<div class='score-card'>
-<span class='badge badge-alert'>📈 WIN PROBABILITY MARGINS</span><br>
-⚽ <b>England vs Croatia</b> (Group L)<br>
-* **England Win Odds:** $54.2\%$ | **Croatia Win Odds:** $21.8\%$ | **Draw Index:** $24.0\%$
-* **Expected Goals Formats:** $X_G = 1.64$ vs $0.92$
-</div>""".format(confidence)
-
-    else:
-        return r"""**NextPlay Core Engine:** (ML Intent Match: *Fantasy Performance Index* | Confidence: {0}%)
-
-### 📊 Fantasy Metrics & Waiver Scout Panels
-
-<div class='score-card'>
-<span class='badge badge-scheduled'>💎 HIGH-VALUE WAIVER TARGET</span><br>
-🏀 **Advanced Floor-Spacing Index Formulas**<br>
-* **Efficiency Indicator:** Effective Field Goal Percentage metric calculated as:
-$$eFG\% = \frac{\text{Field Goals Made} + 0.5 \times \text{3PM}}{\text{Field Goal Attempts}}$$
-</div>""".format(confidence)
+def run_live_llm_inference(history, current_prompt):
+    if not client:
+        return "⚠️ **System Notification:** `GROQ_API_KEY` was not found in your Streamlit secrets. Please add it to unlock true AI generations."
+        
+    try:
+        # Build memory profile for the AI model conversation history
+        messages_payload = [
+            {
+                "role": "system",
+                "content": (
+                    "You are NextPlay AI Nexus, an elite, premium AI sports assistant. "
+                    "You break down matchups, rosters, scores, tactics, and trivia with creative insight. "
+                    "Do not use simple template arrays. Respond to whatever user says with analytical intelligence. "
+                    "Use clean markdown formatting, bold headings, and lists to match a premium dark UI dashboard."
+                )
+            }
+        ]
+        
+        for turn in history:
+            messages_payload.append({"role": turn["role"], "content": turn["content"]})
+            
+        messages_payload.append({"role": "user", "content": current_prompt})
+        
+        # Call open-source Llama3 running on fast hardware inference engines
+        completion = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=messages_payload,
+            temperature=0.7,
+            max_tokens=1024
+        )
+        return completion.choices[0].message.content
+    except Exception as e:
+        return f"❌ **Generation Pipeline Error:** {str(e)}"
 
 # -------------------------
-# 5. FORM LAYER INTERFACE
+# 6. APPLICATION INPUT MECHANICS
 # -------------------------
 with st.form(key="nexus_input_form", clear_on_submit=True):
-    user_query = st.text_input("", placeholder="Type a message or use the navigation chips above to process native ML queries...", label_visibility="collapsed")
-    submit_button = st.form_submit_button(label="⚡ ENGAGE MACHINE LEARNING PROJECTION ENGINE", use_container_width=True)
+    user_query = st.text_input("", placeholder="Type any real sports conversation challenge here...", label_visibility="collapsed")
+    submit_button = st.form_submit_button(label="⚡ EXECUTE AI GENERATIVE MATRIX INFERENCE", use_container_width=True)
 
 active_input = user_query if (submit_button and user_query) else quick_query
 
 if active_input:
     st.session_state.nexus_history.append({"role": "user", "content": active_input})
-    ai_response = run_matrix_inference(active_input)
-    st.session_state.nexus_history.append({"role": "ai", "content": ai_response})
+    
+    with st.spinner("Streaming analytical intelligence parameters..."):
+        ai_response = run_live_llm_inference(st.session_state.nexus_history[:-1], active_input)
+        
+    st.session_state.nexus_history.append({"role": "assistant", "content": ai_response})
     st.rerun()
 
 st.markdown("</div>", unsafe_allow_html=True)
