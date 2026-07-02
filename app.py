@@ -3,7 +3,7 @@ import requests
 import json
 
 # -------------------------
-# 1. APEX BRANDING & GLASSMORPHISM INTERFACE
+# 1. APEX CORPORATE THEME & GLASSMORPHISM
 # -------------------------
 st.set_page_config(
     page_title="APEX AI | Enterprise Sports Intelligence",
@@ -48,7 +48,7 @@ if "apex_history" not in st.session_state:
 # 2. DESIGN APP HEADER
 # -------------------------
 st.markdown("<div class='main-title'>APEX AI</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub-title'>Institutional Talent Discovery & Content Syndication Engine</div>", unsafe_allow_html=True)
+st.markdown("<div class='sub-title'>Institutional Talent Discovery & Automated Media Syndication Engine</div>", unsafe_allow_html=True)
 
 # -------------------------
 # 3. LIVE CHAT FEED VIEWPORT
@@ -62,48 +62,48 @@ for message in st.session_state.apex_history:
         st.markdown(f"<div class='ai-bubble'>👑 <b>Apex Intelligence Core:</b><br><br>{message['content']}</div>", unsafe_allow_html=True)
 
 # -------------------------
-# 4. DEPLOY UNBLOCKED TRUE LIVE GENERATIVE BRAIN
+# 4. HIGH-SPEED FREE LIVE GENERATIVE LLM CHANNEL
 # -------------------------
 def generate_apex_ai_response(history_list, current_prompt):
     try:
-        # Build conversational structural layout
-        system_rules = (
-            "You are APEX AI, an elite, multi-billion dollar sports intelligence enterprise platform built for pro teams, agents, and media networks. "
-            "When asked to scout or find players, provide rich player names, mock metrics, and financial evaluations. "
-            "When asked to generate media or script copies, provide ready-to-publish professional articles or video voiceover text formats. "
-            "Analyze and answer whatever the user types with custom, dynamic data structures. Use clean markdown styling."
+        # Strict business rule setting to ensure the model combines scouting analytics with media outputs
+        system_instruction = (
+            "You are APEX AI, a multi-billion dollar enterprise sports platform combining AI Player Scouting with Automated Media Syndication. "
+            "When the user asks about scouting, finding, or analyzing players, you MUST provide two distinct components in your answer:\n"
+            "1. THE SCOUTING DATA: Highly technical player stats, realistic metric comparisons, age, positional traits, and clear transfer values.\n"
+            "2. THE AUTOMATED MEDIA PACKET: A complete, ready-to-publish professional press release, agency pitch deck, or video broadcast script highlighting that player's value.\n"
+            "Respond dynamically to what the user types using this dual strategy-plus-content model. Format with clean, executive markdown."
         )
         
-        full_conversation = system_rules + "\n\n"
+        # Build prompt payload
+        full_prompt = f"{system_instruction}\n\n"
         for turn in history_list:
-            full_conversation += f"{'User' if turn['role'] == 'user' else 'Apex'}: {turn['content']}\n"
-        full_conversation += f"User: {current_prompt}\nApex:"
+            full_prompt += f"{'User' if turn['role'] == 'user' else 'Apex'}: {turn['content']}\n"
+        full_prompt += f"User: {current_prompt}\nApex:"
 
-        # Connect to an open network server endpoint for unauthenticated AI generation
-        api_url = "https://api.moemate.io/v1/chat/completions" if False else "https://text.pollinations.ai/"
+        # Call stable, unauthenticated high-speed inference cluster
+        api_url = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
+        payload = {
+            "inputs": full_prompt,
+            "parameters": {"max_new_tokens": 700, "temperature": 0.6, "return_full_text": False}
+        }
         
-        # Fire off direct server-to-server prompt streaming request
-        response = requests.post(
-            api_url,
-            json={"messages": [{"role": "user", "content": full_conversation}], "model": "openai"},
-            timeout=15
-        )
+        response = requests.post(api_url, json=payload, timeout=20)
         
         if response.status_code == 200:
-            # Clean up JSON return parameters or handle raw textual data streams
-            try:
-                return response.json()['choices'][0]['message']['content'].strip()
-            except:
-                return response.text.strip()
-                
-        # High-tier local redundancy layer if endpoint experience traffic waves
-        return "Apex pipeline connection reset under high institutional volume. Re-deploying stream protocol vectors... please click submit again."
+            res_json = response.json()
+            if isinstance(res_json, list) and len(res_json) > 0:
+                output_text = res_json[0].get('generated_text', '').strip()
+                if output_text:
+                    return output_text
+                    
+        return "Apex intelligence routing node is recalibrating data clusters. Please re-submit the request to execute line inference."
         
     except Exception as e:
-        return f"Apex Node Routing Disruption: {str(e)}. Attempting backup channel sync."
+        return f"Apex Node Connection Disruption: {str(e)}. Re-engaging link framework."
 
 # -------------------------
-# 5. UI INPUT DESIGN
+# 5. USER INTERFACE FORM STRUCTURE
 # -------------------------
 with st.form(key="apex_form", clear_on_submit=True):
     user_query = st.text_input("", placeholder="Command Apex to discover under-valued roster assets, compile agency pitch decks, or write media reports...", label_visibility="collapsed")
